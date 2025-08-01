@@ -93,6 +93,7 @@ export default function FinanceScreen() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isCategorizeVisible, setIsCategorizeVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -172,6 +173,30 @@ export default function FinanceScreen() {
     Alert.alert('Succès', 'Transaction catégorisée avec succès !');
   };
 
+  const openEditTransaction = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsEditTransactionVisible(true);
+  };
+
+  const closeEditTransaction = () => {
+    setIsEditTransactionVisible(false);
+    setSelectedTransaction(null);
+  };
+
+  const updateTransaction = (category: string, color: string) => {
+    if (!selectedTransaction) return;
+
+    const updatedTransactions = transactions.map(t => 
+      t.id === selectedTransaction.id 
+        ? { ...t, category, categoryColor: color, isUncategorized: false }
+        : t
+    );
+
+    setTransactions(updatedTransactions);
+    closeEditTransaction();
+    Alert.alert('Succès', 'Transaction modifiée avec succès !');
+  };
+
   const renderTransaction = (transaction: Transaction) => (
     <TouchableOpacity 
       key={transaction.id} 
@@ -183,8 +208,8 @@ export default function FinanceScreen() {
           borderColor: isDarkMode ? '#4B5563' : (transaction.isUncategorized ? '#F59E0B' : '#FFD840')
         }
       ]}
-      onPress={() => transaction.isUncategorized && openCategorizeModal(transaction)}
-      activeOpacity={transaction.isUncategorized ? 0.7 : 1}
+      onPress={() => transaction.isUncategorized ? openCategorizeModal(transaction) : openEditTransaction(transaction)}
+      activeOpacity={0.7}
     >
       <View style={[styles.transactionIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
         {transaction.type === 'income' ? (
@@ -375,6 +400,61 @@ export default function FinanceScreen() {
                       }
                     ]}
                     onPress={() => categorizeTransaction(category.name, category.color)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.categoryColorDot, { backgroundColor: category.color }]} />
+                    <Text style={[styles.categoryOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                      {category.name}
+                    </Text>
+                    <Check size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Edit Transaction Modal */}
+      <Modal
+        visible={isEditTransactionVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={closeEditTransaction}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <View style={styles.modalHeaderLeft}>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Modifier la transaction
+              </Text>
+              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                {selectedTransaction?.title}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={closeEditTransaction} style={styles.closeButton}>
+              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            <View style={styles.categoriesSection}>
+              <Text style={[styles.categoriesTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                {selectedTransaction?.type === 'income' ? 'Catégories de revenus' : 'Catégories de dépenses'}
+              </Text>
+              
+              <View style={styles.categoriesGrid}>
+                {(selectedTransaction?.type === 'income' ? incomeCategories : expenseCategories).map((category) => (
+                  <TouchableOpacity
+                    key={category.name}
+                    style={[
+                      styles.categoryOption,
+                      { 
+                        backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                        borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+                      }
+                    ]}
+                    onPress={() => updateTransaction(category.name, category.color)}
                     activeOpacity={0.7}
                   >
                     <View style={[styles.categoryColorDot, { backgroundColor: category.color }]} />
