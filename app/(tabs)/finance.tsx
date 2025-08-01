@@ -293,20 +293,20 @@ export default function FinanceScreen() {
 
       {/* Bank Connection Section */}
       <View style={[
-        styles.bankSection,
+        styles.calendarSection,
         { 
           backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
           borderColor: isDarkMode ? '#4B5563' : 'transparent'
         }
       ]}>
-        <View style={styles.bankInfo}>
-          <DollarSign size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            Connecter votre compte bancaire
+        <View style={styles.calendarInfo}>
+          <Calendar size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+          <Text style={[styles.calendarText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Compte bancaire
           </Text>
         </View>
-        <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
-          <Text style={styles.connectBankButtonText}>Connecter</Text>
+        <TouchableOpacity style={styles.connectButton} onPress={handleConnectBank}>
+          <Text style={styles.connectButtonText}>Connecter</Text>
         </TouchableOpacity>
       </View>
 
@@ -706,8 +706,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
   },
-  // Bank Connection Styles
-  bankSection: {
+  calendarSection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -721,22 +720,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  bankInfo: {
+  calendarInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  bankText: {
+  calendarText: {
     marginLeft: 8,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
   },
-  connectBankButton: {
+  connectButton: {
     backgroundColor: '#FFD840',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  connectBankButtonText: {
+  connectButtonText: {
     color: '#2E2E2E',
     fontFamily: 'Inter-Regular',
     fontWeight: '600',
