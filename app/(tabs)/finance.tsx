@@ -337,7 +337,7 @@ export default function FinanceScreen() {
                 Aucune transaction
               </Text>
               <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Commencez par ajouter votre première transaction pour ce mois.
+                Connectez votre compte bancaire pour synchroniser automatiquement vos transactions.
               </Text>
             </View>
           ) : (
