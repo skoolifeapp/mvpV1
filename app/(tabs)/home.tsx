@@ -325,18 +325,9 @@ export default function HomeScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Bonjour Alex 👋
-              </Text>
-              <Text style={[styles.dateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                {new Date().toLocaleDateString('fr-FR', { 
-                  weekday: 'long', 
-                  day: 'numeric', 
-                  month: 'long' 
-                })}
-              </Text>
-            </View>
+            <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Tableau de bord
+            </Text>
             <TouchableOpacity 
               style={styles.userButton}
               onPress={() => setIsUserMenuVisible(true)}
@@ -346,128 +337,177 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Quick Stats */}
-          <View style={styles.quickStats}>
-            <TouchableOpacity 
-              style={[styles.statItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => navigateToModule('tasks')}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.statIcon, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={styles.statEmoji}>✅</Text>
-              </View>
-              <Text style={[styles.statNumber, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {dashboardData.tasksPending}
-              </Text>
-              <Text style={[styles.statLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Tâches
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.statItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => navigateToModule('planning')}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.statIcon, { backgroundColor: '#DBEAFE' }]}>
-                <Text style={styles.statEmoji}>📅</Text>
-              </View>
-              <Text style={[styles.statNumber, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {dashboardData.todayEvents}
-              </Text>
-              <Text style={[styles.statLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Aujourd'hui
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.statItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => navigateToModule('finance')}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.statIcon, { backgroundColor: '#D1FAE5' }]}>
-                <Text style={styles.statEmoji}>💰</Text>
-              </View>
-              <Text style={[styles.statNumber, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {dashboardData.budgetPercentage}%
-              </Text>
-              <Text style={[styles.statLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Budget
-              </Text>
-            </TouchableOpacity>
+          {/* Welcome Section */}
+          <View style={[
+            styles.welcomeSection,
+            { 
+              backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+              borderColor: isDarkMode ? '#4B5563' : 'transparent'
+            }
+          ]}>
+            <Text style={[styles.welcomeTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Bonjour Alex 👋
+            </Text>
+            <Text style={[styles.welcomeSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              {new Date().toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+              })}
+            </Text>
           </View>
 
-          {/* Quick Actions */}
-          <View style={styles.quickActions}>
+          {/* Overview Cards */}
+          <View style={styles.overviewSection}>
             <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Actions rapides
+              Vue d'ensemble
             </Text>
             
-            <View style={styles.actionsGrid}>
-              <TouchableOpacity 
-                style={[styles.actionItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
+            <View style={styles.overviewGrid}>
+              {/* Tasks Overview */}
+              <TouchableOpacity
+                style={[
+                  styles.overviewCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}
                 onPress={() => navigateToModule('tasks')}
                 activeOpacity={0.7}
               >
-                <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
-                  <Text style={styles.actionEmoji}>➕</Text>
+                <View style={styles.overviewHeader}>
+                  <Text style={[styles.overviewTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                    Mes Tâches
+                  </Text>
+                  <Text style={[styles.overviewCount, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    {dashboardData.tasksPending} en attente
+                  </Text>
                 </View>
-                <Text style={[styles.actionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Nouvelle tâche
-                </Text>
+                <View style={styles.overviewProgress}>
+                  <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+                    <View 
+                      style={[
+                        styles.progressFill,
+                        { 
+                          width: `${dashboardData.tasksProgress}%`,
+                          backgroundColor: '#10B981'
+                        }
+                      ]} 
+                    />
+                  </View>
+                  <Text style={[styles.progressText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    {dashboardData.tasksProgress}% terminées
+                  </Text>
+                </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.actionItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
+              {/* Planning Overview */}
+              <TouchableOpacity
+                style={[
+                  styles.overviewCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}
                 onPress={() => navigateToModule('planning')}
                 activeOpacity={0.7}
               >
-                <View style={[styles.actionIcon, { backgroundColor: '#DBEAFE' }]}>
-                  <Text style={styles.actionEmoji}>📝</Text>
+                <View style={styles.overviewHeader}>
+                  <Text style={[styles.overviewTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                    Mon Planning
+                  </Text>
+                  <Text style={[styles.overviewCount, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    {dashboardData.todayEvents} aujourd'hui
+                  </Text>
                 </View>
-                <Text style={[styles.actionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Planifier
+                <Text style={[styles.overviewDetail, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  {dashboardData.weekEvents} événements cette semaine
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.actionItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
+              {/* Finance Overview */}
+              <TouchableOpacity
+                style={[
+                  styles.overviewCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}
                 onPress={() => navigateToModule('finance')}
                 activeOpacity={0.7}
               >
-                <View style={[styles.actionIcon, { backgroundColor: '#D1FAE5' }]}>
-                  <Text style={styles.actionEmoji}>💳</Text>
+                <View style={styles.overviewHeader}>
+                  <Text style={[styles.overviewTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                    Mes Finances
+                  </Text>
+                  <Text style={[styles.overviewCount, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    {dashboardData.budgetPercentage}% utilisé
+                  </Text>
                 </View>
-                <Text style={[styles.actionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Finances
-                </Text>
+                <View style={styles.overviewProgress}>
+                  <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+                    <View 
+                      style={[
+                        styles.progressFill,
+                        { 
+                          width: `${Math.min(dashboardData.budgetPercentage, 100)}%`,
+                          backgroundColor: dashboardData.budgetPercentage > 80 ? '#EF4444' : '#FFD840'
+                        }
+                      ]} 
+                    />
+                  </View>
+                  <Text style={[styles.progressText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    {dashboardData.monthlyExpenses}€ dépensés
+                  </Text>
+                </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.actionItem, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
+              {/* Documents Overview */}
+              <TouchableOpacity
+                style={[
+                  styles.overviewCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}
                 onPress={() => navigateToModule('documents')}
                 activeOpacity={0.7}
               >
-                <View style={[styles.actionIcon, { backgroundColor: '#F3E8FF' }]}>
-                  <Text style={styles.actionEmoji}>📄</Text>
+                <View style={styles.overviewHeader}>
+                  <Text style={[styles.overviewTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                    Mes Documents
+                  </Text>
+                  <Text style={[styles.overviewCount, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                    0 documents
+                  </Text>
                 </View>
-                <Text style={[styles.actionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Documents
+                <Text style={[styles.overviewDetail, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Organisez vos fichiers
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Recent Activity */}
-          <View style={styles.recentActivity}>
+          {/* Activity Section */}
+          <View style={styles.activitySection}>
             <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
               Activité récente
             </Text>
             
-            <View style={[styles.activityList, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}>
+            <View style={styles.activityContainer}>
               {dashboardData.tasksPending > 0 && (
-                <View style={styles.activityItem}>
-                  <View style={[styles.activityIcon, { backgroundColor: '#FEF3C7' }]}>
+                <View style={[
+                  styles.activityCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}>
+                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
                     <Text style={styles.activityEmoji}>⏳</Text>
                   </View>
                   <View style={styles.activityContent}>
@@ -482,8 +522,14 @@ export default function HomeScreen() {
               )}
               
               {dashboardData.todayEvents > 0 && (
-                <View style={styles.activityItem}>
-                  <View style={[styles.activityIcon, { backgroundColor: '#DBEAFE' }]}>
+                <View style={[
+                  styles.activityCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}>
+                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
                     <Text style={styles.activityEmoji}>📅</Text>
                   </View>
                   <View style={styles.activityContent}>
@@ -497,8 +543,14 @@ export default function HomeScreen() {
                 </View>
               )}
               
-              <View style={styles.activityItem}>
-                <View style={[styles.activityIcon, { backgroundColor: '#D1FAE5' }]}>
+              <View style={[
+                styles.activityCard,
+                { 
+                  backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                  borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                }
+              ]}>
+                <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
                   <Text style={styles.activityEmoji}>💰</Text>
                 </View>
                 <View style={styles.activityContent}>
@@ -512,8 +564,14 @@ export default function HomeScreen() {
               </View>
               
               {(dashboardData.tasksPending === 0 && dashboardData.todayEvents === 0) && (
-                <View style={styles.activityItem}>
-                  <View style={[styles.activityIcon, { backgroundColor: '#D1FAE5' }]}>
+                <View style={[
+                  styles.activityCard,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+                  }
+                ]}>
+                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
                     <Text style={styles.activityEmoji}>✨</Text>
                   </View>
                   <View style={styles.activityContent}>
@@ -676,17 +734,10 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
   },
-  headerLeft: {
-    flex: 1,
-  },
-  greeting: {
+  title: {
     fontSize: 28,
     fontFamily: 'Poppins-Bold',
     marginBottom: 4,
-  },
-  dateText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
   },
   userButton: {
     width: 48,
@@ -706,16 +757,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     color: '#2E2E2E',
   },
-  quickStats: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 32,
-    gap: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 20,
+  welcomeSection: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -723,88 +768,89 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  statEmoji: {
-    fontSize: 20,
-  },
-  statNumber: {
+  welcomeTitle: {
     fontSize: 24,
     fontFamily: 'Poppins-Bold',
     marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 12,
+  welcomeSubtitle: {
+    fontSize: 16,
     fontFamily: 'Inter-Regular',
-    textAlign: 'center',
   },
-  quickActions: {
+  overviewSection: {
     paddingHorizontal: 20,
     marginBottom: 32,
+  },
+  overviewGrid: {
+    gap: 12,
+  },
+  overviewCard: {
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+  },
+  overviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  overviewTitle: {
+    fontSize: 18,
+    fontFamily: 'Manrope-Bold',
+  },
+  overviewCount: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  overviewDetail: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  overviewProgress: {
+    gap: 8,
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+  },
+  activitySection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  activityContainer: {
+    gap: 12,
+  },
+  activityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
   },
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Manrope-Bold',
     marginBottom: 16,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  actionItem: {
-    width: '48%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  actionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  actionEmoji: {
-    fontSize: 16,
-  },
-  actionText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-  },
-  recentActivity: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  activityList: {
-    borderRadius: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
   },
   activityIcon: {
     width: 32,
