@@ -577,12 +577,12 @@ const styles = StyleSheet.create({
   balanceCard: {
     marginHorizontal: 20,
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
+    padding: 12,
+    marginBottom: 16,
     borderWidth: 1,
   },
   balanceHeader: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   balanceTitle: {
     fontSize: 14,
@@ -590,9 +590,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   balanceAmount: {
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: 'Poppins-Bold',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   balanceDetails: {
     flexDirection: 'row',
