@@ -234,6 +234,14 @@ export default function FinanceScreen() {
     return newTransaction.type === 'income' ? incomeCategories : expenseCategories;
   };
 
+  const handleConnectBank = () => {
+    Alert.alert(
+      'Connexion bancaire',
+      'Fonctionnalité de connexion bancaire à venir !',
+      [{ text: 'OK' }]
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
