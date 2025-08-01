@@ -6,18 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Modal,
-  TextInput,
   Alert,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart, Receipt, RefreshCw } from 'lucide-react-native';
-import { useFonts } from 'expo-font';
-import {
-  Poppins_700Bold,
-} from '@expo-google-fonts/poppins';
-import {
-  Manrope_700Bold,
-} from '@expo-google-fonts/manrope';
+  RefreshCw,
 import {
   Inter_400Regular,
 } from '@expo-google-fonts/inter';
@@ -63,15 +55,7 @@ export default function FinanceScreen() {
     { name: 'Loisirs', budget: 100, spent: 0, color: '#10B981' },
     { name: 'Études', budget: 80, spent: 0, color: '#3B82F6' },
     { name: 'Santé', budget: 70, spent: 0, color: '#EC4899' },
-  ]);
-  const [newTransaction, setNewTransaction] = useState({
-    title: '',
-    amount: '',
-    type: 'expense' as 'income' | 'expense',
-    category: '',
-    date: '',
-    categoryColor: '#EF4444',
-  });
+  const [isSyncing, setIsSyncing] = useState(false);
   const [newBudget, setNewBudget] = useState({
     name: '',
     budget: '',
@@ -182,43 +166,18 @@ export default function FinanceScreen() {
       'Êtes-vous sûr de vouloir supprimer cette transaction ?',
       [
         { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            setTransactions(transactions.filter(t => t.id !== transactionId));
-            Alert.alert('Succès', 'Transaction supprimée avec succès !');
-          },
-        },
-      ]
-    );
-  };
-
-  const saveTransaction = () => {
-    if (!newTransaction.title.trim() || !newTransaction.amount.trim()) {
-      Alert.alert('Erreur', 'Le titre et le montant sont obligatoires');
-      return;
-    }
-
-    const amount = parseFloat(newTransaction.amount);
-    if (isNaN(amount) || amount <= 0) {
-      Alert.alert('Erreur', 'Le montant doit être un nombre positif');
-      return;
-    }
-
-    if (editingTransaction) {
-      const updatedTransaction: Transaction = {
-        ...editingTransaction,
-        title: newTransaction.title.trim(),
-        amount: amount,
-        type: newTransaction.type,
-        category: newTransaction.category || (newTransaction.type === 'income' ? 'Autre' : 'Alimentation'),
-        date: newTransaction.date || new Date().toISOString().split('T')[0],
-        categoryColor: newTransaction.categoryColor,
-      };
-
-      setTransactions(transactions.map(t => 
-        t.id === editingTransaction.id ? updatedTransaction : t
+  const handleBankSync = () => {
+    setIsSyncing(true);
+    
+    // Simulation de la synchronisation bancaire
+    setTimeout(() => {
+      setIsSyncing(false);
+      Alert.alert(
+        'Synchronisation terminée',
+        'Vos dernières transactions bancaires ont été importées. Vous pouvez maintenant les catégoriser.',
+        [{ text: 'Compris', style: 'default' }]
+      );
+    }, 2000);
       ));
 
       closeEditTransaction();
@@ -471,11 +430,17 @@ export default function FinanceScreen() {
           <TouchableOpacity onPress={() => navigateMonth('prev')} activeOpacity={0.7}>
             <ChevronLeft size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={[styles.monthTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }
             {formatMonth(currentDate)}
-          </Text>
+            onPress={handleBankSync}
+            disabled={isSyncing}
           <TouchableOpacity onPress={() => navigateMonth('next')} activeOpacity={0.7}>
-            <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+            <RefreshCw 
+              size={24} 
+              color={isDarkMode ? '#F9FAFB' : '#FFFFFF'} 
+              strokeWidth={2}
+              style={isSyncing ? { transform: [{ rotate: '180deg' }] } : {}}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -542,7 +507,7 @@ export default function FinanceScreen() {
             ) : (
               <View style={styles.transactionsContainer}>
                 {currentMonthTransactions
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                onPress={handleBankSync}
                   .map(transaction => (
                     <View key={transaction.id} style={[
                       styles.transactionCard,
@@ -590,9 +555,9 @@ export default function FinanceScreen() {
                         styles.transactionAmount,
                         { color: transaction.type === 'income' ? '#10B981' : '#EF4444' }
                       ]}>
-                        {transaction.type === 'income' ? '+' : '-'}{transaction.amount.toFixed(2)} €
+                <RefreshCw size={20} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
                       </Text>
-                    </View>
+                  Synchroniser la banque
                   ))}
               </View>
             )}
@@ -1066,188 +1031,6 @@ export default function FinanceScreen() {
                 value={newBudget.name}
                 onChangeText={(text) => setNewBudget({...newBudget, name: text})}
                 maxLength={30}
-              />
-            </View>
-
-            {/* Budget Amount Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant mensuel *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.budget}
-                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Color Selection */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Tag size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Couleur
-                </Text>
-              </View>
-              <View style={styles.categoryGrid}>
-                {[
-                  { color: '#EF4444', name: 'Rouge' },
-                  { color: '#F59E0B', name: 'Orange' },
-                  { color: '#10B981', name: 'Vert' },
-                  { color: '#3B82F6', name: 'Bleu' },
-                  { color: '#8B5CF6', name: 'Violet' },
-                  { color: '#EC4899', name: 'Rose' },
-                ].map((colorOption) => (
-                  <TouchableOpacity
-                    key={colorOption.color}
-                    style={[
-                      styles.colorOptionBudget,
-                      { backgroundColor: colorOption.color },
-                      newBudget.color === colorOption.color && styles.selectedColorBudget
-                    ]}
-                    onPress={() => setNewBudget({...newBudget, color: colorOption.color})}
-                  />
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Créer le budget</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Edit Budget Modal */}
-      <Modal
-        visible={isEditBudgetVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={closeEditBudget}
-      >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <View style={styles.modalHeaderLeft}>
-              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Modifier le budget
-              </Text>
-              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Mettez à jour votre budget
-              </Text>
-            </View>
-            <TouchableOpacity onPress={closeEditBudget} style={styles.closeButton}>
-              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Name Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Type size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Nom du budget *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="Ex: Vêtements"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.name}
-                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
-                maxLength={30}
-              />
-            </View>
-
-            {/* Budget Amount Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant mensuel *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.budget}
-                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Color Selection */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Tag size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Couleur
-                </Text>
-              </View>
-              <View style={styles.categoryGrid}>
-                {[
-                  { color: '#EF4444', name: 'Rouge' },
-                  { color: '#F59E0B', name: 'Orange' },
-                  { color: '#10B981', name: 'Vert' },
-                  { color: '#3B82F6', name: 'Bleu' },
-                  { color: '#8B5CF6', name: 'Violet' },
-                  { color: '#EC4899', name: 'Rose' },
-                ].map((colorOption) => (
-                  <TouchableOpacity
-                    key={colorOption.color}
-                    style={[
-                      styles.colorOptionBudget,
-                      { backgroundColor: colorOption.color },
-                      newBudget.color === colorOption.color && styles.selectedColorBudget
-                    ]}
-                    onPress={() => setNewBudget({...newBudget, color: colorOption.color})}
-                  />
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Sauvegarder</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -1654,122 +1437,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  // Modal Styles
-  modalContainer: {
-    flex: 1,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  modalHeaderLeft: {
-    flex: 1,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  closeButton: {
-    padding: 8,
-  },
-  modalContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  formGroup: {
-    marginBottom: 24,
-  },
-  fieldHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  fieldLabel: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  typeGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  typeOption: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedType: {
-    borderColor: '#2E2E2E',
-  },
-  typeOptionText: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
-  },
-  categoryOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedCategory: {
-    borderColor: '#2E2E2E',
-  },
-  categoryOptionText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  modalFooter: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFD840',
-    paddingVertical: 14,
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-    color: '#2E2E2E',
-  },
 });
