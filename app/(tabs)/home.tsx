@@ -33,6 +33,26 @@ import { SplashScreen } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 
+interface Transaction {
+  id: string;
+  title: string;
+  amount: number;
+  date: string;
+  category: string;
+  type: 'income' | 'expense';
+  categoryColor: string;
+  bankName: string;
+  isUncategorized?: boolean;
+}
+
+interface BudgetCategory {
+  id: string;
+  name: string;
+  budgeted: number;
+  spent: number;
+  color: string;
+}
+
 SplashScreen.preventAutoHideAsync();
 
 export default function HomeScreen() {
@@ -56,17 +76,118 @@ export default function HomeScreen() {
     return null;
   }
 
+  // Données financières synchronisées avec le module Finance
+  const transactions: Transaction[] = [
+    {
+      id: '1',
+      title: 'Salaire Janvier',
+      amount: 1200,
+      date: '15/01/2025',
+      category: 'Salaire',
+      type: 'income',
+      categoryColor: '#10B981',
+      bankName: 'Crédit Agricole',
+    },
+    {
+      id: '2',
+      title: 'Courses Carrefour',
+      amount: -45.80,
+      date: '14/01/2025',
+      category: 'Alimentation',
+      type: 'expense',
+      categoryColor: '#EF4444',
+      bankName: 'Crédit Agricole',
+    },
+    {
+      id: '3',
+      title: 'Virement reçu',
+      amount: 150,
+      date: '12/01/2025',
+      category: '',
+      type: 'income',
+      categoryColor: '#6B7280',
+      bankName: 'Crédit Agricole',
+      isUncategorized: true,
+    },
+  ];
+
+  const budgetCategories: BudgetCategory[] = [
+    {
+      id: '1',
+      name: 'Alimentation',
+      budgeted: 300,
+      spent: 0,
+      color: '#EF4444',
+    },
+    {
+      id: '2',
+      name: 'Transport',
+      budgeted: 150,
+      spent: 0,
+      color: '#F59E0B',
+    },
+    {
+      id: '3',
+      name: 'Loisirs',
+      budgeted: 200,
+      spent: 0,
+      color: '#3B82F6',
+    },
+    {
+      id: '4',
+      name: 'Logement',
+      budgeted: 800,
+      spent: 0,
+      color: '#8B5CF6',
+    },
+  ];
+
+  // Calculer les dépenses par catégorie à partir des transactions
+  const calculateCategorySpending = () => {
+    const categorySpending: { [key: string]: number } = {};
+    
+    transactions
+      .filter(t => t.type === 'expense' && !t.isUncategorized)
+      .forEach(transaction => {
+        const category = transaction.category;
+        const amount = Math.abs(transaction.amount);
+        categorySpending[category] = (categorySpending[category] || 0) + amount;
+      });
+    
+    return categorySpending;
+  };
+
+  const categorySpending = calculateCategorySpending();
+
+  // Mettre à jour les catégories de budget avec les vraies dépenses
+  const updatedBudgetCategories = budgetCategories.map(category => ({
+    ...category,
+    spent: categorySpending[category.name] || 0
+  }));
+
+  // Calculs financiers synchronisés
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+  const totalBudgeted = budgetCategories.reduce((sum, cat) => sum + cat.budgeted, 0);
+  const totalSpent = updatedBudgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
+  const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0;
+
   const dashboardData = {
     tasksPending: 2,
     tasksCompleted: 5,
     tasksProgress: 71,
     todayEvents: 2,
     weekEvents: 8,
-    monthlyIncome: 1380,
-    monthlyExpenses: 605,
-    budgetPercentage: 34,
+    monthlyIncome: totalIncome,
+    monthlyExpenses: totalExpenses,
+    budgetPercentage: budgetPercentage,
   };
-
   const userData = {
     name: 'Alex Martin',
     email: 'alex.martin@skoolife.com',
