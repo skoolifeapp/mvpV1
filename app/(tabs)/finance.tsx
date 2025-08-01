@@ -250,12 +250,6 @@ export default function FinanceScreen() {
           <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             Mes Finances
           </Text>
-          <TouchableOpacity 
-            style={[styles.addButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
-            onPress={() => setIsAddTransactionVisible(true)}
-          >
-            <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-          </TouchableOpacity>
         </View>
 
         {/* Bank Connection Section */}
