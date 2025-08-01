@@ -452,50 +452,6 @@ export default function FinanceScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Balance Card */}
-      <View style={[
-        styles.balanceCard,
-        { 
-          backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
-        }
-      ]}>
-        <View style={styles.balanceHeader}>
-          <Text style={[styles.balanceTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            Balance du mois
-          </Text>
-        </View>
-        
-        <Text style={[
-          styles.balanceAmount,
-          { 
-            color: balance >= 0 ? '#10B981' : '#EF4444',
-            textAlign: 'center'
-          }
-        ]}>
-          {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
-        </Text>
-        
-        <View style={styles.balanceDetails}>
-          <View style={styles.balanceItem}>
-            <Text style={[styles.balanceLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-              Revenus
-            </Text>
-            <Text style={[styles.balanceValue, { color: '#10B981' }]}>
-              +{totalIncome.toFixed(2)} €
-            </Text>
-          </View>
-          <View style={styles.balanceItem}>
-            <Text style={[styles.balanceLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-              Dépenses
-            </Text>
-            <Text style={[styles.balanceValue, { color: '#EF4444' }]}>
-              -{totalExpenses.toFixed(2)} €
-            </Text>
-          </View>
-        </View>
-      </View>
-
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -768,43 +724,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontWeight: '600',
     fontSize: 14,
-  },
-  balanceCard: {
-    marginHorizontal: 20,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-  },
-  balanceHeader: {
-    marginBottom: 8,
-  },
-  balanceTitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  balanceAmount: {
-    fontSize: 20,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 12,
-  },
-  balanceDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  balanceItem: {
-    alignItems: 'center',
-  },
-  balanceLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 4,
-  },
-  balanceValue: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
   },
   tabContainer: {
     flexDirection: 'row',
