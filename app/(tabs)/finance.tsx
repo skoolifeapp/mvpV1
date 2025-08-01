@@ -432,7 +432,34 @@ export default function FinanceScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {/* Fixed Header Section */}
+      <View style={styles.fixedHeader}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Mes Finances
+          </Text>
+        </View>
+
+        {/* Bank Connection Section */}
+        <View style={[
+          styles.bankSection,
+          { 
+            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+            borderColor: isDarkMode ? '#4B5563' : 'transparent'
+          }
+        ]}>
+          <View style={styles.bankInfo}>
+            <CreditCard size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+            <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Compte bancaire
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
+            <Text style={styles.connectBankButtonText}>Connecter</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Month Navigation */}
         <View style={[
           styles.monthNavigation,
@@ -451,6 +478,7 @@ export default function FinanceScreen() {
             <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
         </View>
+      </View>
 
       {/* Scrollable Content */}
       <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
@@ -1220,7 +1248,6 @@ export default function FinanceScreen() {
           </View>
         </SafeAreaView>
       </Modal>
-      </ScrollView>
     </SafeAreaView>
   );
 }
