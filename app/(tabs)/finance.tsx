@@ -149,6 +149,10 @@ export default function FinanceScreen() {
     }, 2000);
   };
 
+  const handleConnectBank = () => {
+    Alert.alert('Connexion bancaire', 'Fonctionnalité de connexion à venir');
+  };
+
   const openCategorizeModal = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setIsCategorizeVisible(true);
@@ -284,6 +288,25 @@ export default function FinanceScreen() {
             strokeWidth={2}
             style={[isSyncing && styles.spinning]}
           />
+        </TouchableOpacity>
+      </View>
+
+      {/* Bank Connection Section */}
+      <View style={[
+        styles.bankSection,
+        { 
+          backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+          borderColor: isDarkMode ? '#4B5563' : 'transparent'
+        }
+      ]}>
+        <View style={styles.bankInfo}>
+          <DollarSign size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+          <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Connecter votre compte bancaire
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
+          <Text style={styles.connectBankButtonText}>Connecter</Text>
         </TouchableOpacity>
       </View>
 
@@ -682,6 +705,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
+  },
+  // Bank Connection Styles
+  bankSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  bankInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bankText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+  },
+  connectBankButton: {
+    backgroundColor: '#FFD840',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  connectBankButtonText: {
+    color: '#2E2E2E',
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+    fontSize: 14,
   },
   modalHeaderLeft: {
     flex: 1,
