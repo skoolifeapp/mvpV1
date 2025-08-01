@@ -1,21 +1,24 @@
 import { Tabs } from 'expo-router';
 import { House, DollarSign, SquareCheck as CheckSquare, Calendar, FileText } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TabLayout() {
+  const { isDarkMode } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: isDarkMode ? '#374151' : '#E5E7EB',
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
         },
         tabBarActiveTintColor: '#FCD34D',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarInactiveTintColor: isDarkMode ? '#9CA3AF' : '#6B7280',
         tabBarLabelStyle: {
           fontSize: 0,
         },
