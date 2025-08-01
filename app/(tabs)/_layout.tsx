@@ -76,7 +76,6 @@ export default function TabLayout() {
         if (nextIndex < tabs.length) {
           runOnJS(navigateToTab)(nextIndex);
         } else {
-        }
           // Retour à la position actuelle si on ne peut pas aller plus loin
           containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
             damping: 20,
@@ -107,8 +106,6 @@ export default function TabLayout() {
         damping: 20,
         stiffness: 90,
       });
-        }
-      }
     },
   });
   
