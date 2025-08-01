@@ -1118,4 +1118,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Manrope-Bold',
     color: '#2E2E2E',
+  },
 });
