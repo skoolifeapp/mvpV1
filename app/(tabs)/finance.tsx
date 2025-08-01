@@ -539,46 +539,6 @@ export default function FinanceScreen() {
         </ScrollView>
       ) : (
         <ScrollView style={styles.budgetList} showsVerticalScrollIndicator={false}>
-          {/* Budget Summary */}
-          <View style={[
-            styles.budgetSummary,
-            { 
-              backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-              borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
-            }
-          ]}>
-            <Text style={[styles.budgetSummaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Résumé du budget
-            </Text>
-            
-            <View style={styles.budgetSummaryStats}>
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Budget total
-                </Text>
-                <Text style={[styles.budgetSummaryValue, { color: '#3B82F6' }]}>
-                  {totalBudgeted.toFixed(2)} €
-                </Text>
-              </View>
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Dépensé
-                </Text>
-                <Text style={[styles.budgetSummaryValue, { color: '#EF4444' }]}>
-                  {totalSpent.toFixed(2)} €
-                </Text>
-              </View>
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Restant
-                </Text>
-                <Text style={[styles.budgetSummaryValue, { color: budgetRemaining >= 0 ? '#10B981' : '#EF4444' }]}>
-                  {budgetRemaining.toFixed(2)} €
-                </Text>
-              </View>
-            </View>
-          </View>
-          
           <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             Catégories de budget
           </Text>
@@ -864,34 +824,6 @@ const styles = StyleSheet.create({
   budgetList: {
     flex: 1,
     paddingHorizontal: 20,
-  },
-  budgetSummary: {
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-  },
-  budgetSummaryTitle: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  budgetSummaryStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  budgetSummaryItem: {
-    alignItems: 'center',
-  },
-  budgetSummaryLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 4,
-  },
-  budgetSummaryValue: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
   },
   budgetContainer: {
     paddingBottom: 20,
