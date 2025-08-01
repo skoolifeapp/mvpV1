@@ -293,20 +293,20 @@ export default function FinanceScreen() {
 
       {/* Bank Connection Section */}
       <View style={[
-        styles.calendarSection,
+        styles.bankSection,
         { 
           backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
           borderColor: isDarkMode ? '#4B5563' : 'transparent'
         }
       ]}>
-        <View style={styles.calendarInfo}>
-          <Calendar size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          <Text style={[styles.calendarText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            Compte bancaire
+        <View style={styles.bankInfo}>
+          <DollarSign size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+          <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Connecter votre compte bancaire
           </Text>
         </View>
-        <TouchableOpacity style={styles.connectButton} onPress={handleConnectBank}>
-          <Text style={styles.connectButtonText}>Connecter</Text>
+        <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
+          <Text style={styles.connectBankButtonText}>Connecter</Text>
         </TouchableOpacity>
       </View>
 
@@ -706,7 +706,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
   },
-  calendarSection: {
+  // Bank Connection Styles
+  bankSection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -720,22 +721,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  calendarInfo: {
+  bankInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  calendarText: {
+  bankText: {
     marginLeft: 8,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
   },
-  connectButton: {
+  connectBankButton: {
     backgroundColor: '#FFD840',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  connectButtonText: {
+  connectBankButtonText: {
     color: '#2E2E2E',
     fontFamily: 'Inter-Regular',
     fontWeight: '600',
