@@ -431,6 +431,8 @@ export default function FinanceScreen() {
   };
 
   return (
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Month Navigation */}
         <View style={[
           styles.monthNavigation,
@@ -449,7 +451,6 @@ export default function FinanceScreen() {
             <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
         </View>
-      </View>
 
       {/* Scrollable Content */}
       <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
@@ -1219,6 +1220,7 @@ export default function FinanceScreen() {
           </View>
         </SafeAreaView>
       </Modal>
+      </ScrollView>
     </SafeAreaView>
   );
 }
