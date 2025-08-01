@@ -517,6 +517,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
   },
+  subtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
   syncButton: {
     width: 48,
     height: 48,
