@@ -6,12 +6,27 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   Modal,
-  TextInput,
+  Alert,
 } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart, Receipt, RefreshCw } from 'lucide-react-native';
+import { 
+  RefreshCw, 
+  DollarSign, 
+  TrendingUp, 
+  TrendingDown, 
+  X, 
+  Tag, 
+  ChevronDown,
+  CreditCard as Edit3,
+  Check
+} from 'lucide-react-native';
 import { useFonts } from 'expo-font';
+import {
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
+import {
+  Manrope_700Bold,
+} from '@expo-google-fonts/manrope';
 import {
   Inter_400Regular,
 } from '@expo-google-fonts/inter';
@@ -22,13 +37,13 @@ interface Transaction {
   id: string;
   title: string;
   amount: number;
-  type: 'income' | 'expense';
-  category: string;
   date: string;
+  category: string;
+  type: 'income' | 'expense';
   categoryColor: string;
+  bankName: string;
+  isUncategorized?: boolean;
 }
-
-type TabType = 'transactions' | 'budget';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,37 +56,43 @@ export default function FinanceScreen() {
     'Inter-Regular': Inter_400Regular,
   });
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>('transactions');
-  const [isAddTransactionVisible, setIsAddTransactionVisible] = useState(false);
-  const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [isAddBudgetVisible, setIsAddBudgetVisible] = useState(false);
-  const [isEditBudgetVisible, setIsEditBudgetVisible] = useState(false);
-  const [editingBudget, setEditingBudget] = useState<any | null>(null);
-  const [budgetCategories, setBudgetCategories] = useState([
-    { name: 'Alimentation', budget: 200, spent: 0, color: '#EF4444' },
-    { name: 'Transport', budget: 150, spent: 0, color: '#F59E0B' },
-    { name: 'Logement', budget: 500, spent: 0, color: '#8B5CF6' },
-    { name: 'Loisirs', budget: 100, spent: 0, color: '#10B981' },
-    { name: 'Études', budget: 80, spent: 0, color: '#3B82F6' },
-    { name: 'Santé', budget: 70, spent: 0, color: '#EC4899' },
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: '1',
+      title: 'Salaire Janvier',
+      amount: 1200,
+      date: '15/01/2025',
+      category: 'Salaire',
+      type: 'income',
+      categoryColor: '#10B981',
+      bankName: 'Crédit Agricole',
+    },
+    {
+      id: '2',
+      title: 'Courses Carrefour',
+      amount: -45.80,
+      date: '14/01/2025',
+      category: 'Alimentation',
+      type: 'expense',
+      categoryColor: '#EF4444',
+      bankName: 'Crédit Agricole',
+    },
+    {
+      id: '3',
+      title: 'Virement reçu',
+      amount: 150,
+      date: '12/01/2025',
+      category: '',
+      type: 'income',
+      categoryColor: '#6B7280',
+      bankName: 'Crédit Agricole',
+      isUncategorized: true,
+    },
   ]);
+
   const [isSyncing, setIsSyncing] = useState(false);
-  const [newBudget, setNewBudget] = useState({
-    name: '',
-    budget: '',
-    color: '#EF4444',
-  });
-  const [newTransaction, setNewTransaction] = useState({
-    title: '',
-    amount: '',
-    type: 'expense' as 'income' | 'expense',
-    category: '',
-    date: '',
-    categoryColor: '#EF4444',
-  });
+  const [isCategorizeVisible, setIsCategorizeVisible] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -88,1175 +109,284 @@ export default function FinanceScreen() {
     { name: 'Freelance', color: '#3B82F6' },
     { name: 'Bourse', color: '#8B5CF6' },
     { name: 'Famille', color: '#F59E0B' },
-    { name: 'Autre', color: '#6366F1' },
+    { name: 'Autre', color: '#6B7280' },
   ];
 
   const expenseCategories = [
     { name: 'Alimentation', color: '#EF4444' },
     { name: 'Transport', color: '#F59E0B' },
     { name: 'Logement', color: '#8B5CF6' },
-    { name: 'Loisirs', color: '#10B981' },
-    { name: 'Études', color: '#3B82F6' },
-    { name: 'Santé', color: '#EC4899' },
+    { name: 'Loisirs', color: '#3B82F6' },
+    { name: 'Santé', color: '#10B981' },
+    { name: 'Éducation', color: '#6366F1' },
+    { name: 'Autre', color: '#6B7280' },
   ];
 
-  const getCurrentMonthTransactions = () => {
-    return transactions.filter(transaction => {
-      const transactionDate = new Date(transaction.date);
-      return transactionDate.getMonth() === currentDate.getMonth() &&
-             transactionDate.getFullYear() === currentDate.getFullYear();
-    });
-  };
-
-  const currentMonthTransactions = getCurrentMonthTransactions();
-  const totalIncome = currentMonthTransactions
+  const totalIncome = transactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = currentMonthTransactions
+
+  const totalExpenses = transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
   const balance = totalIncome - totalExpenses;
-  
-  const totalBudget = budgetCategories.reduce((sum, cat) => sum + cat.budget, 0);
-  const budgetUsed = budgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
-  const budgetRemaining = totalBudget - budgetUsed;
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
-    setCurrentDate(newDate);
-  };
+  const uncategorizedCount = transactions.filter(t => t.isUncategorized).length;
 
-  const formatMonth = (date: Date) => {
-    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    return `${months[date.getMonth()]} ${date.getFullYear()}`;
-  };
-
-  const closeAddTransaction = () => {
-    setIsAddTransactionVisible(false);
-    setNewTransaction({
-      title: '',
-      amount: '',
-      type: 'expense',
-      category: '',
-      date: '',
-      categoryColor: '#EF4444',
-    });
-  };
-
-  const openEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-    setNewTransaction({
-      title: transaction.title,
-      amount: transaction.amount.toString(),
-      type: transaction.type,
-      category: transaction.category,
-      date: transaction.date,
-      categoryColor: transaction.categoryColor,
-    });
-    setIsEditTransactionVisible(true);
-  };
-
-  const closeEditTransaction = () => {
-    setIsEditTransactionVisible(false);
-    setEditingTransaction(null);
-    setNewTransaction({
-      title: '',
-      amount: '',
-      type: 'expense',
-      category: '',
-      date: '',
-      categoryColor: '#EF4444',
-    });
-  };
-
-  const deleteTransaction = (transactionId: string) => {
-    Alert.alert(
-      'Supprimer la transaction',
-      'Êtes-vous sûr de vouloir supprimer cette transaction ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            setTransactions(transactions.filter(transaction => transaction.id !== transactionId));
-            Alert.alert('Succès', 'Transaction supprimée avec succès !');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleBankSync = () => {
+  const handleSync = () => {
     setIsSyncing(true);
     
-    // Simulation de la synchronisation bancaire
+    // Simulation de synchronisation
     setTimeout(() => {
       setIsSyncing(false);
       Alert.alert(
         'Synchronisation terminée',
-        'Vos dernières transactions bancaires ont été importées. Vous pouvez maintenant les catégoriser.',
+        'Vos nouvelles transactions ont été importées. Vous pouvez maintenant les catégoriser.',
         [{ text: 'Compris', style: 'default' }]
       );
     }, 2000);
   };
 
-  const saveTransaction = () => {
-    if (!newTransaction.title.trim() || !newTransaction.amount.trim()) {
-      Alert.alert('Erreur', 'Le titre et le montant sont obligatoires');
-      return;
-    }
-
-    const amount = parseFloat(newTransaction.amount);
-    if (isNaN(amount) || amount <= 0) {
-      Alert.alert('Erreur', 'Le montant doit être un nombre positif');
-      return;
-    }
-
-    if (editingTransaction) {
-      const updatedTransaction: Transaction = {
-        ...editingTransaction,
-        title: newTransaction.title.trim(),
-        amount: amount,
-        type: newTransaction.type,
-        category: newTransaction.category || (newTransaction.type === 'income' ? 'Autre' : 'Alimentation'),
-        date: newTransaction.date || new Date().toISOString().split('T')[0],
-        categoryColor: newTransaction.categoryColor,
-      };
-
-      setTransactions(transactions.map(transaction => 
-        transaction.id === editingTransaction.id ? updatedTransaction : transaction
-      ));
-
-      closeEditTransaction();
-      Alert.alert('Succès', 'Transaction modifiée avec succès !');
-    } else {
-      const transactionToAdd: Transaction = {
-        id: Date.now().toString(),
-        title: newTransaction.title.trim(),
-        amount: amount,
-        type: newTransaction.type,
-        category: newTransaction.category || (newTransaction.type === 'income' ? 'Autre' : 'Alimentation'),
-        date: newTransaction.date || new Date().toISOString().split('T')[0],
-        categoryColor: newTransaction.categoryColor,
-      };
-
-      setTransactions([...transactions, transactionToAdd]);
-      closeAddTransaction();
-      Alert.alert('Succès', 'Transaction ajoutée avec succès !');
-    }
+  const openCategorizeModal = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsCategorizeVisible(true);
   };
 
-  const getCurrentCategories = () => {
-    return newTransaction.type === 'income' ? incomeCategories : expenseCategories;
+  const closeCategorizeModal = () => {
+    setIsCategorizeVisible(false);
+    setSelectedTransaction(null);
   };
 
-  const handleConnectBank = () => {
-    Alert.alert(
-      'Connexion bancaire',
-      'Fonctionnalité de connexion bancaire à venir !',
-      [{ text: 'OK' }]
+  const categorizeTransaction = (category: string, color: string) => {
+    if (!selectedTransaction) return;
+
+    const updatedTransactions = transactions.map(t => 
+      t.id === selectedTransaction.id 
+        ? { ...t, category, categoryColor: color, isUncategorized: false }
+        : t
     );
+
+    setTransactions(updatedTransactions);
+    closeCategorizeModal();
+    Alert.alert('Succès', 'Transaction catégorisée avec succès !');
   };
 
-  const closeAddBudget = () => {
-    setIsAddBudgetVisible(false);
-    setNewBudget({
-      name: '',
-      budget: '',
-      color: '#EF4444',
-    });
-  };
-
-  const openEditBudget = (budget: any) => {
-    setEditingBudget(budget);
-    setNewBudget({
-      name: budget.name,
-      budget: budget.budget.toString(),
-      color: budget.color,
-    });
-    setIsEditBudgetVisible(true);
-  };
-
-  const closeEditBudget = () => {
-    setIsEditBudgetVisible(false);
-    setEditingBudget(null);
-    setNewBudget({
-      name: '',
-      budget: '',
-      color: '#EF4444',
-    });
-  };
-
-  const deleteBudget = (budgetName: string) => {
-    Alert.alert(
-      'Supprimer le budget',
-      'Êtes-vous sûr de vouloir supprimer ce budget ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            setBudgetCategories(budgetCategories.filter(budget => budget.name !== budgetName));
-            Alert.alert('Succès', 'Budget supprimé avec succès !');
-          },
-        },
-      ]
-    );
-  };
-
-  const saveBudget = () => {
-    if (!newBudget.name.trim() || !newBudget.budget.trim()) {
-      Alert.alert('Erreur', 'Le nom et le montant du budget sont obligatoires');
-      return;
-    }
-
-    const budgetAmount = parseFloat(newBudget.budget);
-    if (isNaN(budgetAmount) || budgetAmount <= 0) {
-      Alert.alert('Erreur', 'Le montant doit être un nombre positif');
-      return;
-    }
-
-    if (editingBudget) {
-      const updatedBudget = {
-        ...editingBudget,
-        name: newBudget.name.trim(),
-        budget: budgetAmount,
-        color: newBudget.color,
-      };
-
-      setBudgetCategories(budgetCategories.map(budget => 
-        budget.name === editingBudget.name ? updatedBudget : budget
-      ));
-
-      closeEditBudget();
-      Alert.alert('Succès', 'Budget modifié avec succès !');
-    } else {
-      const budgetToAdd = {
-        name: newBudget.name.trim(),
-        budget: budgetAmount,
-        spent: 0,
-        color: newBudget.color,
-      };
-
-      setBudgetCategories([...budgetCategories, budgetToAdd]);
-      closeAddBudget();
-      Alert.alert('Succès', 'Budget ajouté avec succès !');
-    }
-  };
-
-  const renderTabButton = (tab: TabType, label: string, icon: React.ReactNode) => (
-    <TouchableOpacity
-      key={tab}
+  const renderTransaction = (transaction: Transaction) => (
+    <TouchableOpacity 
+      key={transaction.id} 
       style={[
-        styles.tabButton,
-        activeTab === tab && styles.activeTabButton,
-        { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }
+        styles.transactionCard,
+        transaction.isUncategorized && styles.uncategorizedCard,
+        { 
+          backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+          borderColor: isDarkMode ? '#4B5563' : (transaction.isUncategorized ? '#F59E0B' : '#FFD840')
+        }
       ]}
-      onPress={() => setActiveTab(tab)}
+      onPress={() => transaction.isUncategorized && openCategorizeModal(transaction)}
+      activeOpacity={transaction.isUncategorized ? 0.7 : 1}
     >
-      {icon}
-      <Text style={[
-        styles.tabButtonText,
-        activeTab === tab && styles.activeTabButtonText,
-        { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
-      ]}>
-        {label}
-      </Text>
+      <View style={[styles.transactionIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
+        {transaction.type === 'income' ? (
+          <TrendingUp size={20} color="#10B981" strokeWidth={2} />
+        ) : (
+          <TrendingDown size={20} color="#EF4444" strokeWidth={2} />
+        )}
+      </View>
+      
+      <View style={styles.transactionContent}>
+        <Text style={[styles.transactionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+          {transaction.title}
+        </Text>
+        
+        <View style={styles.transactionMeta}>
+          {transaction.isUncategorized ? (
+            <View style={styles.uncategorizedTag}>
+              <Text style={styles.uncategorizedText}>À catégoriser</Text>
+            </View>
+          ) : (
+            <View style={[styles.categoryTag, { backgroundColor: transaction.categoryColor }]}>
+              <Text style={styles.categoryText}>{transaction.category}</Text>
+            </View>
+          )}
+          
+          <Text style={[styles.transactionDate, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+            {transaction.date} • {transaction.bankName}
+          </Text>
+        </View>
+      </View>
+      
+      <View style={styles.transactionAmount}>
+        <Text style={[
+          styles.amountText,
+          { color: transaction.type === 'income' ? '#10B981' : '#EF4444' }
+        ]}>
+          {transaction.type === 'income' ? '+' : ''}{transaction.amount.toFixed(2)} €
+        </Text>
+        {transaction.isUncategorized && (
+          <View style={[styles.editButton, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
+            <Edit3 size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 
-  const renderBudgetCategory = (category: typeof budgetCategories[0]) => {
-    const percentage = category.budget > 0 ? (category.spent / category.budget) * 100 : 0;
-    const getProgressColor = () => {
-      if (percentage < 60) return '#10B981';
-      if (percentage < 80) return '#F59E0B';
-      return '#EF4444';
-    };
-
-    return (
-      <View key={category.name} style={[
-        styles.budgetCategoryCard,
-        { 
-          backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
-        }
-      ]}>
-        <View style={styles.budgetCategoryHeader}>
-          <View style={styles.budgetCategoryInfo}>
-            <View style={[styles.budgetCategoryIcon, { backgroundColor: category.color }]}>
-              <Text style={styles.budgetCategoryIconText}>
-                {category.name.charAt(0)}
-              </Text>
-            </View>
-            <Text style={[styles.budgetCategoryName, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              {category.name}
-            </Text>
-          </View>
-          <View style={styles.budgetCategoryRight}>
-            <Text style={[styles.budgetCategoryAmount, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              {category.spent}€ / {category.budget}€
-            </Text>
-            <View style={styles.budgetCategoryActions}>
-              <TouchableOpacity 
-                style={[styles.budgetActionButton, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}
-                onPress={() => openEditBudget(category)}
-                activeOpacity={0.7}
-              >
-                <Edit3 size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.budgetActionButton, styles.deleteBudgetButton, { backgroundColor: isDarkMode ? '#7F1D1D' : '#FEF2F2' }]}
-                onPress={() => deleteBudget(category.name)}
-                activeOpacity={0.7}
-              >
-                <Trash2 size={16} color="#DC2626" strokeWidth={2} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-        
-        <View style={styles.budgetProgress}>
-          <View style={[styles.budgetProgressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <View 
-              style={[
-                styles.budgetProgressFill,
-                { 
-                  width: `${Math.min(percentage, 100)}%`,
-                  backgroundColor: getProgressColor()
-                }
-              ]} 
-            />
-          </View>
-          <Text style={[styles.budgetProgressText, { color: getProgressColor() }]}>
-            {percentage.toFixed(0)}%
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-      {/* Fixed Header Section */}
-      <View style={styles.fixedHeader}>
-        {/* Header */}
-        <View style={styles.header}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
           <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             Mes Finances
           </Text>
+          <Text style={[styles.subtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+            Synchronisé automatiquement
+          </Text>
         </View>
+        <TouchableOpacity 
+          style={[
+            styles.syncButton,
+            isSyncing && styles.syncButtonActive,
+            { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }
+          ]}
+          onPress={handleSync}
+          disabled={isSyncing}
+        >
+          <RefreshCw 
+            size={24} 
+            color={isDarkMode ? '#F9FAFB' : '#FFFFFF'} 
+            strokeWidth={2}
+            style={[isSyncing && styles.spinning]}
+          />
+        </TouchableOpacity>
+      </View>
 
-        {/* Bank Connection Section */}
-        <View style={[
-          styles.bankSection,
-          { 
-            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-            borderColor: isDarkMode ? '#4B5563' : 'transparent'
-          }
+      {/* Balance Card */}
+      <View style={[
+        styles.balanceCard,
+        { 
+          backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+        }
+      ]}>
+        <View style={styles.balanceHeader}>
+          <Text style={[styles.balanceTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Balance du mois
+          </Text>
+        </View>
+        
+        <Text style={[
+          styles.balanceAmount,
+          { color: balance >= 0 ? '#10B981' : '#EF4444' }
         ]}>
-          <View style={styles.bankInfo}>
-            <CreditCard size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-            <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Compte bancaire
+          {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
+        </Text>
+        
+        <View style={styles.balanceDetails}>
+          <View style={styles.balanceItem}>
+            <Text style={[styles.balanceLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              Revenus
+            </Text>
+            <Text style={[styles.balanceValue, { color: '#10B981' }]}>
+              +{totalIncome.toFixed(2)} €
             </Text>
           </View>
-          <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
-            <Text style={styles.connectBankButtonText}>Connecter</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Month Navigation */}
-        <View style={[
-          styles.monthNavigation,
-          {
-            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-            borderColor: isDarkMode ? '#4B5563' : 'transparent'
-          }
-        ]}>
-          <TouchableOpacity onPress={() => navigateMonth('prev')} activeOpacity={0.7}>
-            <ChevronLeft size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          </TouchableOpacity>
-          <Text style={[styles.monthTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            {formatMonth(currentDate)}
-          </Text>
-          <TouchableOpacity 
-            style={[styles.syncButton, { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }]}
-            onPress={handleBankSync}
-            disabled={isSyncing}
-          >
-            <RefreshCw 
-              size={24} 
-              color={isDarkMode ? '#F9FAFB' : '#FFFFFF'} 
-              strokeWidth={2}
-              style={isSyncing ? { transform: [{ rotate: '180deg' }] } : {}}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateMonth('next')} activeOpacity={0.7}>
-            <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          </TouchableOpacity>
+          <View style={styles.balanceItem}>
+            <Text style={[styles.balanceLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              Dépenses
+            </Text>
+            <Text style={[styles.balanceValue, { color: '#EF4444' }]}>
+              -{totalExpenses.toFixed(2)} €
+            </Text>
+          </View>
         </View>
       </View>
 
-      {/* Scrollable Content */}
-      <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
-        {/* Balance Card */}
-        <View style={[
-          styles.balanceCard,
-          { 
-            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-            borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-          }
-        ]}>
-          <Text style={[styles.balanceLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-            Balance du mois
+      {/* Uncategorized Alert */}
+      {uncategorizedCount > 0 && (
+        <View style={[styles.alertCard, { backgroundColor: isDarkMode ? '#7C2D12' : '#FEF3C7' }]}>
+          <Text style={[styles.alertText, { color: isDarkMode ? '#FED7AA' : '#92400E' }]}>
+            {uncategorizedCount} transaction{uncategorizedCount > 1 ? 's' : ''} à catégoriser
           </Text>
-          <Text style={[
-            styles.balanceAmount,
-            { color: balance >= 0 ? '#10B981' : '#EF4444' }
-          ]}>
-            {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
-          </Text>
-          
-          <View style={styles.balanceStats}>
-            <View style={styles.balanceStatItem}>
-              <Text style={[styles.balanceStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Revenus
-              </Text>
-              <Text style={styles.incomeText}>+{totalIncome.toFixed(2)} €</Text>
-            </View>
-            <View style={styles.balanceStatItem}>
-              <Text style={[styles.balanceStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Dépenses
-              </Text>
-              <Text style={styles.expenseText}>-{totalExpenses.toFixed(2)} €</Text>
-            </View>
-          </View>
         </View>
+      )}
 
-        {/* Tab Navigation */}
-        <View style={styles.tabContainer}>
-          {renderTabButton('transactions', 'Transactions', <Receipt size={20} color={activeTab === 'transactions' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />)}
-          {renderTabButton('budget', 'Budget', <PieChart size={20} color={activeTab === 'budget' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />)}
-        </View>
-
-        {/* Tab Content */}
-        {activeTab === 'transactions' ? (
-          <View style={styles.transactionsSection}>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Transactions
+      {/* Transactions List */}
+      <ScrollView style={styles.transactionsList} showsVerticalScrollIndicator={false}>
+        <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+          Transactions récentes
+        </Text>
+        
+        {transactions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <DollarSign size={48} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={1.5} />
+            <Text style={[styles.emptyStateTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Aucune transaction
             </Text>
-            
-            {currentMonthTransactions.length === 0 ? (
-              <View style={styles.emptyState}>
-                <DollarSign size={48} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={1.5} />
-                <Text style={[styles.emptyStateTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Aucune transaction
-                </Text>
-                <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Connectez votre compte bancaire pour synchroniser automatiquement vos transactions.
-                </Text>
-                <TouchableOpacity 
-                  style={[styles.syncButton, { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }]}
-                  onPress={handleBankSync}
-                  disabled={isSyncing}
-                >
-                  <RefreshCw size={20} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-                  <Text style={[styles.syncButtonText, { color: isDarkMode ? '#F9FAFB' : '#FFFFFF' }]}>
-                    Synchroniser la banque
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.transactionsContainer}>
-                {currentMonthTransactions
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map(transaction => (
-                    <View key={transaction.id} style={[
-                      styles.transactionCard,
-                      { 
-                        backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                        borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-                      }
-                    ]}>
-                      <View style={styles.transactionContent}>
-                        <Text style={[styles.transactionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                          {transaction.title}
-                        </Text>
-                        
-                        <View style={styles.transactionMeta}>
-                          <View style={[styles.categoryTag, { backgroundColor: transaction.categoryColor }]}>
-                            <Text style={styles.categoryText}>{transaction.category}</Text>
-                          </View>
-                          <Text style={[styles.transactionDate, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                            {transaction.date}
-                          </Text>
-                        </View>
-                        
-                        <View style={styles.transactionActions}>
-                          <TouchableOpacity 
-                            style={[styles.actionButton, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}
-                            onPress={() => openEditTransaction(transaction)}
-                          >
-                            <Edit3 size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-                            <Text style={[styles.actionText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                              Modifier
-                            </Text>
-                          </TouchableOpacity>
-                          
-                          <TouchableOpacity 
-                            style={[styles.actionButton, styles.deleteAction, { backgroundColor: isDarkMode ? '#7F1D1D' : '#FEF2F2' }]}
-                            onPress={() => deleteTransaction(transaction.id)}
-                          >
-                            <Trash2 size={16} color="#EF4444" strokeWidth={2} />
-                            <Text style={[styles.actionText, styles.deleteText]}>Supprimer</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                      
-                      <Text style={[
-                        styles.transactionAmount,
-                        { color: transaction.type === 'income' ? '#10B981' : '#EF4444' }
-                      ]}>
-                        {transaction.type === 'income' ? '+' : '-'}{transaction.amount.toFixed(2)} €
-                      </Text>
-                    </View>
-                  ))}
-              </View>
-            )}
+            <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              Connectez votre banque pour voir vos transactions automatiquement.
+            </Text>
           </View>
         ) : (
-          <View style={styles.budgetSection}>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Budget mensuel
-            </Text>
-            
-            {/* Budget Summary */}
-            <View style={[
-              styles.budgetSummaryCard,
-              { 
-                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-              }
-            ]}>
-              <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Budget total
-              </Text>
-              <Text style={[styles.budgetSummaryAmount, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {totalBudget}€
-              </Text>
-              
-              <View style={styles.budgetSummaryStats}>
-                <View style={styles.budgetSummaryStatItem}>
-                  <Text style={[styles.budgetSummaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Dépensé
-                  </Text>
-                  <Text style={styles.budgetUsedText}>{budgetUsed}€</Text>
-                </View>
-                <View style={styles.budgetSummaryStatItem}>
-                  <Text style={[styles.budgetSummaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Restant
-                  </Text>
-                  <Text style={styles.budgetRemainingText}>{budgetRemaining}€</Text>
-                </View>
-              </View>
-            </View>
-            
-            {/* Budget Categories */}
-            <View style={styles.budgetCategoriesContainer}>
-              {budgetCategories.map(renderBudgetCategory)}
-            </View>
+          <View style={styles.transactionsContainer}>
+            {transactions.map(renderTransaction)}
           </View>
         )}
       </ScrollView>
 
-      {/* Floating Add Button */}
-      {activeTab === 'transactions' ? (
-        <TouchableOpacity 
-          style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
-          onPress={() => setIsAddTransactionVisible(true)}
-        >
-          <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-        </TouchableOpacity>
-      ) : activeTab === 'budget' && (
-        <TouchableOpacity 
-          style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
-          onPress={() => setIsAddBudgetVisible(true)}
-        >
-          <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-        </TouchableOpacity>
-      )}
-
-      {/* Add Transaction Modal */}
+      {/* Categorize Modal */}
       <Modal
-        visible={isAddTransactionVisible}
+        visible={isCategorizeVisible}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={closeAddTransaction}
+        onRequestClose={closeCategorizeModal}
       >
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
           <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
             <View style={styles.modalHeaderLeft}>
               <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Nouvelle transaction
+                Catégoriser la transaction
               </Text>
               <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Gérez vos finances
+                {selectedTransaction?.title}
               </Text>
             </View>
-            <TouchableOpacity onPress={closeAddTransaction} style={styles.closeButton}>
+            <TouchableOpacity onPress={closeCategorizeModal} style={styles.closeButton}>
               <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Type Selection */}
-            <View style={styles.formGroup}>
-              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Type de transaction
+            <View style={styles.categoriesSection}>
+              <Text style={[styles.categoriesTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                {selectedTransaction?.type === 'income' ? 'Catégories de revenus' : 'Catégories de dépenses'}
               </Text>
-              <View style={styles.typeGrid}>
-                <TouchableOpacity
-                  style={[
-                    styles.typeOption,
-                    newTransaction.type === 'income' && styles.selectedType,
-                    { backgroundColor: '#10B981' + '20' }
-                  ]}
-                  onPress={() => setNewTransaction({
-                    ...newTransaction, 
-                    type: 'income',
-                    categoryColor: '#10B981',
-                    category: ''
-                  })}
-                >
-                  <Text style={[styles.typeOptionText, { color: '#10B981' }]}>
-                    Revenu
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.typeOption,
-                    newTransaction.type === 'expense' && styles.selectedType,
-                    { backgroundColor: '#EF4444' + '20' }
-                  ]}
-                  onPress={() => setNewTransaction({
-                    ...newTransaction, 
-                    type: 'expense',
-                    categoryColor: '#EF4444',
-                    category: ''
-                  })}
-                >
-                  <Text style={[styles.typeOptionText, { color: '#EF4444' }]}>
-                    Dépense
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Title Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Type size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Titre *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="Ex: Courses alimentaires"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.title}
-                onChangeText={(text) => setNewTransaction({...newTransaction, title: text})}
-                maxLength={50}
-              />
-            </View>
-
-            {/* Amount Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.amount}
-                onChangeText={(text) => setNewTransaction({...newTransaction, amount: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Category Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Tag size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Catégorie
-                </Text>
-              </View>
-              <View style={styles.categoryGrid}>
-                {getCurrentCategories().map((category) => (
+              
+              <View style={styles.categoriesGrid}>
+                {(selectedTransaction?.type === 'income' ? incomeCategories : expenseCategories).map((category) => (
                   <TouchableOpacity
                     key={category.name}
                     style={[
                       styles.categoryOption,
-                      { backgroundColor: category.color },
-                      newTransaction.category === category.name && styles.selectedCategory
+                      { 
+                        backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                        borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+                      }
                     ]}
-                    onPress={() => setNewTransaction({
-                      ...newTransaction, 
-                      category: category.name,
-                      categoryColor: category.color
-                    })}
+                    onPress={() => categorizeTransaction(category.name, category.color)}
+                    activeOpacity={0.7}
                   >
-                    <Text style={styles.categoryOptionText}>{category.name}</Text>
+                    <View style={[styles.categoryColorDot, { backgroundColor: category.color }]} />
+                    <Text style={[styles.categoryOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                      {category.name}
+                    </Text>
+                    <Check size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
-
-            {/* Date Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Calendar size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Date
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.date}
-                onChangeText={(text) => setNewTransaction({...newTransaction, date: text})}
-                maxLength={10}
-              />
-            </View>
           </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveTransaction}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Enregistrer la transaction</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Edit Transaction Modal */}
-      <Modal
-        visible={isEditTransactionVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={closeEditTransaction}
-      >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <View style={styles.modalHeaderLeft}>
-              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Modifier la transaction
-              </Text>
-              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Mettez à jour vos informations
-              </Text>
-            </View>
-            <TouchableOpacity onPress={closeEditTransaction} style={styles.closeButton}>
-              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Type Selection */}
-            <View style={styles.formGroup}>
-              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Type de transaction
-              </Text>
-              <View style={styles.typeGrid}>
-                <TouchableOpacity
-                  style={[
-                    styles.typeOption,
-                    newTransaction.type === 'income' && styles.selectedType,
-                    { backgroundColor: '#10B981' + '20' }
-                  ]}
-                  onPress={() => setNewTransaction({
-                    ...newTransaction, 
-                    type: 'income',
-                    categoryColor: '#10B981',
-                    category: ''
-                  })}
-                >
-                  <Text style={[styles.typeOptionText, { color: '#10B981' }]}>
-                    Revenu
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.typeOption,
-                    newTransaction.type === 'expense' && styles.selectedType,
-                    { backgroundColor: '#EF4444' + '20' }
-                  ]}
-                  onPress={() => setNewTransaction({
-                    ...newTransaction, 
-                    type: 'expense',
-                    categoryColor: '#EF4444',
-                    category: ''
-                  })}
-                >
-                  <Text style={[styles.typeOptionText, { color: '#EF4444' }]}>
-                    Dépense
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Title Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Type size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Titre *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="Ex: Courses alimentaires"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.title}
-                onChangeText={(text) => setNewTransaction({...newTransaction, title: text})}
-                maxLength={50}
-              />
-            </View>
-
-            {/* Amount Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.amount}
-                onChangeText={(text) => setNewTransaction({...newTransaction, amount: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Category Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Tag size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Catégorie
-                </Text>
-              </View>
-              <View style={styles.categoryGrid}>
-                {getCurrentCategories().map((category) => (
-                  <TouchableOpacity
-                    key={category.name}
-                    style={[
-                      styles.categoryOption,
-                      { backgroundColor: category.color },
-                      newTransaction.category === category.name && styles.selectedCategory
-                    ]}
-                    onPress={() => setNewTransaction({
-                      ...newTransaction, 
-                      category: category.name,
-                      categoryColor: category.color
-                    })}
-                  >
-                    <Text style={styles.categoryOptionText}>{category.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Date Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Calendar size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Date
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9CA3AF"
-                value={newTransaction.date}
-                onChangeText={(text) => setNewTransaction({...newTransaction, date: text})}
-                maxLength={10}
-              />
-            </View>
-          </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveTransaction}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Add Budget Modal */}
-      <Modal
-        visible={isAddBudgetVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={closeAddBudget}
-      >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <View style={styles.modalHeaderLeft}>
-              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Nouveau budget
-              </Text>
-              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Créez un nouveau budget mensuel
-              </Text>
-            </View>
-            <TouchableOpacity onPress={closeAddBudget} style={styles.closeButton}>
-              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Name Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Type size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Nom du budget *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="Ex: Vêtements"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.name}
-                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
-                maxLength={30}
-              />
-            </View>
-
-            {/* Budget Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant du budget *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.budget}
-                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Color Field */}
-            <View style={styles.formGroup}>
-              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Couleur
-              </Text>
-              <View style={styles.colorGrid}>
-                {['#EF4444', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#EC4899'].map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      styles.colorOptionBudget,
-                      { backgroundColor: color },
-                      newBudget.color === color && styles.selectedColorBudget
-                    ]}
-                    onPress={() => setNewBudget({...newBudget, color: color})}
-                  />
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Enregistrer le budget</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Edit Budget Modal */}
-      <Modal
-        visible={isEditBudgetVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={closeEditBudget}
-      >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <View style={styles.modalHeaderLeft}>
-              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Modifier le budget
-              </Text>
-              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Mettez à jour votre budget
-              </Text>
-            </View>
-            <TouchableOpacity onPress={closeEditBudget} style={styles.closeButton}>
-              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Name Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <Type size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Nom du budget *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="Ex: Vêtements"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.name}
-                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
-                maxLength={30}
-              />
-            </View>
-
-            {/* Budget Field */}
-            <View style={styles.formGroup}>
-              <View style={styles.fieldHeader}>
-                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
-                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Montant du budget *
-                </Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
-                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
-                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
-                  }
-                ]}
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                value={newBudget.budget}
-                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            </View>
-
-            {/* Color Field */}
-            <View style={styles.formGroup}>
-              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Couleur
-              </Text>
-              <View style={styles.colorGrid}>
-                {['#EF4444', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#EC4899'].map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      styles.colorOptionBudget,
-                      { backgroundColor: color },
-                      newBudget.color === color && styles.selectedColorBudget
-                    ]}
-                    onPress={() => setNewBudget({...newBudget, color: color})}
-                  />
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
-              <Save size={20} color="#2E2E2E" strokeWidth={2} />
-              <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
-            </TouchableOpacity>
-          </View>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -1267,181 +397,106 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  fixedHeader: {
-    backgroundColor: 'inherit',
-  },
-  scrollableContent: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
   },
   title: {
     fontSize: 28,
     fontFamily: 'Poppins-Bold',
-  },
-  addButton: {
-    padding: 8,
-    borderRadius: 8,
-  },
-  bankSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginBottom: 24,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  bankInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bankText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  connectBankButton: {
-    backgroundColor: '#FFD840',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  connectBankButtonText: {
-    color: '#2E2E2E',
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  monthNavigation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginBottom: 24,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  monthTitle: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-  },
-  syncButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 8,
-  },
-  syncButtonText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  balanceCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-  },
-  balanceLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  balanceAmount: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  balanceStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  balanceStatItem: {
-    alignItems: 'center',
-  },
-  balanceStatLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
     marginBottom: 4,
   },
-  incomeText: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    color: '#10B981',
+  subtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
-  expenseText: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    color: '#EF4444',
-  },
-  // Tab Styles
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    gap: 8,
-  },
-  tabButton: {
-    flexDirection: 'row',
+  syncButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  activeTabButton: {
-    backgroundColor: '#FFD840',
+  syncButtonActive: {
+    opacity: 0.7,
   },
-  tabButtonText: {
+  spinning: {
+    transform: [{ rotate: '360deg' }],
+  },
+  balanceCard: {
+    marginHorizontal: 20,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  balanceHeader: {
+    marginBottom: 12,
+  },
+  balanceTitle: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     fontWeight: '500',
   },
-  activeTabButtonText: {
-    color: '#2E2E2E',
-    fontWeight: '600',
+  balanceAmount: {
+    fontSize: 24,
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 16,
   },
-  transactionsSection: {
+  balanceDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  balanceItem: {
+    alignItems: 'center',
+  },
+  balanceLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 4,
+  },
+  balanceValue: {
+    fontSize: 16,
+    fontFamily: 'Manrope-Bold',
+  },
+  alertCard: {
+    marginHorizontal: 20,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+  },
+  alertText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  transactionsList: {
+    flex: 1,
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'Manrope-Bold',
     marginBottom: 16,
   },
   emptyState: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
-    paddingTop: 20,
+    paddingVertical: 60,
   },
   emptyStateTitle: {
     fontSize: 20,
@@ -1453,23 +508,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     textAlign: 'center',
-    marginBottom: 24,
     lineHeight: 24,
   },
   transactionsContainer: {
-    gap: 12,
+    paddingBottom: 20,
   },
   transactionCard: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 16,
     borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 2,
+  },
+  uncategorizedCard: {
+    borderColor: '#F59E0B',
+    backgroundColor: '#FFFBEB',
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
   transactionContent: {
     flex: 1,
@@ -1484,7 +550,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 12,
   },
   categoryTag: {
     paddingHorizontal: 12,
@@ -1497,190 +562,34 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontWeight: '600',
   },
+  uncategorizedTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#F59E0B',
+  },
+  uncategorizedText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+  },
   transactionDate: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
   },
-  transactionActions: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    padding: 8,
-    borderRadius: 6,
-  },
-  deleteAction: {},
-  actionText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-  },
-  deleteText: {
-    color: '#EF4444',
-  },
   transactionAmount: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    marginLeft: 16,
-  },
-  // Budget Styles
-  budgetSection: {
-    paddingHorizontal: 20,
-  },
-  budgetSummaryCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-  },
-  budgetSummaryLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  budgetSummaryAmount: {
-    fontSize: 32,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  budgetSummaryStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  budgetSummaryStatItem: {
-    alignItems: 'center',
-  },
-  budgetSummaryStatLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 4,
-  },
-  budgetUsedText: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    color: '#EF4444',
-  },
-  budgetRemainingText: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    color: '#10B981',
-  },
-  budgetCategoriesContainer: {
-    gap: 12,
-  },
-  budgetCategoryCard: {
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-  },
-  budgetCategoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  budgetCategoryInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  budgetCategoryIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  budgetCategoryIconText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontFamily: 'Manrope-Bold',
-  },
-  budgetCategoryName: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-  },
-  budgetCategoryAmount: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  budgetCategoryRight: {
     alignItems: 'flex-end',
-  },
-  budgetCategoryActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  budgetActionButton: {
-    padding: 6,
-    borderRadius: 6,
-  },
-  deleteBudgetButton: {},
-  colorOptionBudget: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedColorBudget: {
-    borderColor: '#2E2E2E',
-    borderWidth: 3,
-  },
-  budgetProgress: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  budgetProgressBar: {
-    flex: 1,
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  budgetProgressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  budgetProgressText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-    minWidth: 40,
-    textAlign: 'right',
-  },
-  // Floating Button
-  floatingAddButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+  },
+  amountText: {
+    fontSize: 16,
+    fontFamily: 'Manrope-Bold',
+    marginBottom: 4,
+  },
+  editButton: {
+    padding: 4,
+    borderRadius: 4,
   },
   // Modal Styles
   modalContainer: {
@@ -1698,8 +607,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modalTitle: {
-    fontSize: 20,
-    fontFamily: 'Manrope-Bold',
+    fontSize: 24,
+    fontFamily: 'Poppins-Bold',
     marginBottom: 4,
   },
   modalSubtitle: {
@@ -1714,96 +623,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
-  formGroup: {
+  categoriesSection: {
     marginBottom: 24,
   },
-  fieldHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+  categoriesTitle: {
+    fontSize: 18,
+    fontFamily: 'Manrope-Bold',
+    marginBottom: 16,
   },
-  fieldLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  typeGrid: {
-    flexDirection: 'row',
+  categoriesGrid: {
     gap: 12,
-    marginTop: 8,
-  },
-  typeOption: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedType: {
-    borderColor: '#2E2E2E',
-  },
-  typeOptionText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
   },
   categoryOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedCategory: {
-    borderColor: '#FFFFFF',
-  },
-  categoryOptionText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 8,
-  },
-  modalFooter: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-  },
-  saveButton: {
-    backgroundColor: '#FFD840',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    padding: 16,
     borderRadius: 12,
-    gap: 8,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  saveButtonText: {
-    color: '#2E2E2E',
+  categoryColorDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  categoryOptionText: {
+    flex: 1,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
