@@ -854,11 +854,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     marginBottom: 8,
+    textAlign: 'center',
   },
   balanceAmount: {
     fontSize: 32,
     fontFamily: 'Poppins-Bold',
     marginBottom: 16,
+    textAlign: 'center',
   },
   balanceStats: {
     flexDirection: 'row',
