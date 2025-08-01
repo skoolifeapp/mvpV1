@@ -128,6 +128,29 @@ export default function FinanceScreen() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
 
+  // Calculer les dépenses par catégorie à partir des transactions
+  const calculateCategorySpending = () => {
+    const categorySpending: { [key: string]: number } = {};
+    
+    transactions
+      .filter(t => t.type === 'expense' && !t.isUncategorized)
+      .forEach(transaction => {
+        const category = transaction.category;
+        const amount = Math.abs(transaction.amount);
+        categorySpending[category] = (categorySpending[category] || 0) + amount;
+      });
+    
+    return categorySpending;
+  };
+
+  const categorySpending = calculateCategorySpending();
+
+  // Mettre à jour les catégories de budget avec les vraies dépenses
+  const updatedBudgetCategories = budgetCategories.map(category => ({
+    ...category,
+    spent: categorySpending[category.name] || 0
+  }));
+
   const [rotateAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -169,7 +192,7 @@ export default function FinanceScreen() {
   const balance = totalIncome - totalExpenses;
 
   const totalBudgeted = budgetCategories.reduce((sum, cat) => sum + cat.budgeted, 0);
-  const totalSpent = budgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
+  const totalSpent = updatedBudgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
   const budgetRemaining = totalBudgeted - totalSpent;
   const uncategorizedCount = transactions.filter(t => t.isUncategorized).length;
 
@@ -225,6 +248,9 @@ export default function FinanceScreen() {
     setTransactions(updatedTransactions);
     closeCategorizeModal();
     Alert.alert('Succès', 'Transaction catégorisée avec succès !');
+    
+    // Recalculer automatiquement les budgets après catégorisation
+    // (Le recalcul se fait automatiquement via calculateCategorySpending)
   };
 
   const openEditTransaction = (transaction: Transaction) => {
@@ -249,6 +275,9 @@ export default function FinanceScreen() {
     setTransactions(updatedTransactions);
     closeEditTransaction();
     Alert.alert('Succès', 'Transaction modifiée avec succès !');
+    
+    // Recalculer automatiquement les budgets après modification
+    // (Le recalcul se fait automatiquement via calculateCategorySpending)
   };
 
   const spin = rotateAnim.interpolate({
@@ -544,7 +573,7 @@ export default function FinanceScreen() {
           </Text>
           
           <View style={styles.budgetContainer}>
-            {budgetCategories.map(renderBudgetCategory)}
+            {updatedBudgetCategories.map(renderBudgetCategory)}
           </View>
         </ScrollView>
       )}
