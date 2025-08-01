@@ -738,42 +738,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
   },
-  // Bank Connection Styles
-  bankSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginBottom: 24,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  bankInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bankText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  connectBankButton: {
-    backgroundColor: '#FFD840',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  connectBankButtonText: {
-    color: '#2E2E2E',
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-    fontSize: 14,
-  },
   modalHeaderLeft: {
     flex: 1,
   },
@@ -793,4 +757,35 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
+  },
+  categoriesSection: {
+    marginBottom: 20,
+  },
+  categoriesTitle: {
+    fontSize: 18,
+    fontFamily: 'Manrope-Bold',
+    marginBottom: 16,
+  },
+  categoriesGrid: {
+    gap: 12,
+  },
+  categoryOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  categoryColorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  categoryOptionText: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '500',
+  },
 });
