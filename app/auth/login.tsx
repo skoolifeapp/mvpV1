@@ -203,8 +203,8 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   logo: {
-    width: 200,
-    height: 80,
+    width: 280,
+    height: 120,
     marginBottom: 8,
   },
   subtitle: {
