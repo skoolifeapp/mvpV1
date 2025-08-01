@@ -339,15 +339,6 @@ export default function FinanceScreen() {
               <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
                 Commencez par ajouter votre première transaction pour ce mois.
               </Text>
-              <TouchableOpacity 
-                style={[styles.addTransactionButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
-                onPress={() => setIsAddTransactionVisible(true)}
-              >
-                <Plus size={20} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
-                <Text style={[styles.addTransactionButtonText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                  Ajouter une transaction
-                </Text>
-              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.transactionsContainer}>
