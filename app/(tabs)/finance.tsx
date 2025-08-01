@@ -53,6 +53,17 @@ export default function FinanceScreen() {
   const [isAddTransactionVisible, setIsAddTransactionVisible] = useState(false);
   const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isAddBudgetVisible, setIsAddBudgetVisible] = useState(false);
+  const [isEditBudgetVisible, setIsEditBudgetVisible] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<any | null>(null);
+  const [budgetCategories, setBudgetCategories] = useState([
+    { name: 'Alimentation', budget: 200, spent: 0, color: '#EF4444' },
+    { name: 'Transport', budget: 150, spent: 0, color: '#F59E0B' },
+    { name: 'Logement', budget: 500, spent: 0, color: '#8B5CF6' },
+    { name: 'Loisirs', budget: 100, spent: 0, color: '#10B981' },
+    { name: 'Études', budget: 80, spent: 0, color: '#3B82F6' },
+    { name: 'Santé', budget: 70, spent: 0, color: '#EC4899' },
+  ]);
   const [newTransaction, setNewTransaction] = useState({
     title: '',
     amount: '',
@@ -60,6 +71,11 @@ export default function FinanceScreen() {
     category: '',
     date: '',
     categoryColor: '#EF4444',
+  });
+  const [newBudget, setNewBudget] = useState({
+    name: '',
+    budget: '',
+    color: '#EF4444',
   });
 
   useEffect(() => {
@@ -87,15 +103,6 @@ export default function FinanceScreen() {
     { name: 'Loisirs', color: '#10B981' },
     { name: 'Études', color: '#3B82F6' },
     { name: 'Santé', color: '#EC4899' },
-  ];
-
-  const budgetCategories = [
-    { name: 'Alimentation', budget: 200, spent: 0, color: '#EF4444' },
-    { name: 'Transport', budget: 150, spent: 0, color: '#F59E0B' },
-    { name: 'Logement', budget: 500, spent: 0, color: '#8B5CF6' },
-    { name: 'Loisirs', budget: 100, spent: 0, color: '#10B981' },
-    { name: 'Études', budget: 80, spent: 0, color: '#3B82F6' },
-    { name: 'Santé', budget: 70, spent: 0, color: '#EC4899' },
   ];
 
   const getCurrentMonthTransactions = () => {
@@ -245,6 +252,93 @@ export default function FinanceScreen() {
     );
   };
 
+  const closeAddBudget = () => {
+    setIsAddBudgetVisible(false);
+    setNewBudget({
+      name: '',
+      budget: '',
+      color: '#EF4444',
+    });
+  };
+
+  const openEditBudget = (budget: any) => {
+    setEditingBudget(budget);
+    setNewBudget({
+      name: budget.name,
+      budget: budget.budget.toString(),
+      color: budget.color,
+    });
+    setIsEditBudgetVisible(true);
+  };
+
+  const closeEditBudget = () => {
+    setIsEditBudgetVisible(false);
+    setEditingBudget(null);
+    setNewBudget({
+      name: '',
+      budget: '',
+      color: '#EF4444',
+    });
+  };
+
+  const deleteBudget = (budgetName: string) => {
+    Alert.alert(
+      'Supprimer le budget',
+      'Êtes-vous sûr de vouloir supprimer ce budget ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            setBudgetCategories(budgetCategories.filter(budget => budget.name !== budgetName));
+            Alert.alert('Succès', 'Budget supprimé avec succès !');
+          },
+        },
+      ]
+    );
+  };
+
+  const saveBudget = () => {
+    if (!newBudget.name.trim() || !newBudget.budget.trim()) {
+      Alert.alert('Erreur', 'Le nom et le montant du budget sont obligatoires');
+      return;
+    }
+
+    const budgetAmount = parseFloat(newBudget.budget);
+    if (isNaN(budgetAmount) || budgetAmount <= 0) {
+      Alert.alert('Erreur', 'Le montant doit être un nombre positif');
+      return;
+    }
+
+    if (editingBudget) {
+      const updatedBudget = {
+        ...editingBudget,
+        name: newBudget.name.trim(),
+        budget: budgetAmount,
+        color: newBudget.color,
+      };
+
+      setBudgetCategories(budgetCategories.map(budget => 
+        budget.name === editingBudget.name ? updatedBudget : budget
+      ));
+
+      closeEditBudget();
+      Alert.alert('Succès', 'Budget modifié avec succès !');
+    } else {
+      const budgetToAdd = {
+        name: newBudget.name.trim(),
+        budget: budgetAmount,
+        spent: 0,
+        color: newBudget.color,
+      };
+
+      setBudgetCategories([...budgetCategories, budgetToAdd]);
+      closeAddBudget();
+      Alert.alert('Succès', 'Budget ajouté avec succès !');
+    }
+  };
+
   const renderTabButton = (tab: TabType, label: string, icon: React.ReactNode) => (
     <TouchableOpacity
       key={tab}
@@ -293,9 +387,27 @@ export default function FinanceScreen() {
               {category.name}
             </Text>
           </View>
-          <Text style={[styles.budgetCategoryAmount, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            {category.spent}€ / {category.budget}€
-          </Text>
+          <View style={styles.budgetCategoryRight}>
+            <Text style={[styles.budgetCategoryAmount, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              {category.spent}€ / {category.budget}€
+            </Text>
+            <View style={styles.budgetCategoryActions}>
+              <TouchableOpacity 
+                style={[styles.budgetActionButton, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}
+                onPress={() => openEditBudget(category)}
+                activeOpacity={0.7}
+              >
+                <Edit3 size={16} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.budgetActionButton, styles.deleteBudgetButton, { backgroundColor: isDarkMode ? '#7F1D1D' : '#FEF2F2' }]}
+                onPress={() => deleteBudget(category.name)}
+                activeOpacity={0.7}
+              >
+                <Trash2 size={16} color="#DC2626" strokeWidth={2} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
         
         <View style={styles.budgetProgress}>
@@ -530,13 +642,20 @@ export default function FinanceScreen() {
         )}
       </ScrollView>
 
-      {/* Floating Add Button - Only show on transactions tab */}
-      {activeTab === 'transactions' && (
+      {/* Floating Add Button */}
+      {activeTab === 'transactions' ? (
         <TouchableOpacity 
           style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
           onPress={() => setIsAddTransactionVisible(true)}
         >
           <RefreshCw size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+        </TouchableOpacity>
+      ) : activeTab === 'budget' && (
+        <TouchableOpacity 
+          style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
+          onPress={() => setIsAddBudgetVisible(true)}
+        >
+          <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
         </TouchableOpacity>
       )}
 
@@ -901,6 +1020,234 @@ export default function FinanceScreen() {
           </View>
         </SafeAreaView>
       </Modal>
+
+      {/* Add Budget Modal */}
+      <Modal
+        visible={isAddBudgetVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={closeAddBudget}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <View style={styles.modalHeaderLeft}>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Nouveau budget
+              </Text>
+              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Créez un nouveau budget mensuel
+              </Text>
+            </View>
+            <TouchableOpacity onPress={closeAddBudget} style={styles.closeButton}>
+              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {/* Name Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <Type size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Nom du budget *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="Ex: Vêtements"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.name}
+                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
+                maxLength={30}
+              />
+            </View>
+
+            {/* Budget Amount Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Montant mensuel *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.budget}
+                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            </View>
+
+            {/* Color Selection */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <Tag size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Couleur
+                </Text>
+              </View>
+              <View style={styles.categoryGrid}>
+                {[
+                  { color: '#EF4444', name: 'Rouge' },
+                  { color: '#F59E0B', name: 'Orange' },
+                  { color: '#10B981', name: 'Vert' },
+                  { color: '#3B82F6', name: 'Bleu' },
+                  { color: '#8B5CF6', name: 'Violet' },
+                  { color: '#EC4899', name: 'Rose' },
+                ].map((colorOption) => (
+                  <TouchableOpacity
+                    key={colorOption.color}
+                    style={[
+                      styles.colorOptionBudget,
+                      { backgroundColor: colorOption.color },
+                      newBudget.color === colorOption.color && styles.selectedColorBudget
+                    ]}
+                    onPress={() => setNewBudget({...newBudget, color: colorOption.color})}
+                  />
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
+              <Save size={20} color="#2E2E2E" strokeWidth={2} />
+              <Text style={styles.saveButtonText}>Créer le budget</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Edit Budget Modal */}
+      <Modal
+        visible={isEditBudgetVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={closeEditBudget}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <View style={styles.modalHeaderLeft}>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Modifier le budget
+              </Text>
+              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Mettez à jour votre budget
+              </Text>
+            </View>
+            <TouchableOpacity onPress={closeEditBudget} style={styles.closeButton}>
+              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {/* Name Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <Type size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Nom du budget *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="Ex: Vêtements"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.name}
+                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
+                maxLength={30}
+              />
+            </View>
+
+            {/* Budget Amount Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Montant mensuel *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.budget}
+                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            </View>
+
+            {/* Color Selection */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <Tag size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Couleur
+                </Text>
+              </View>
+              <View style={styles.categoryGrid}>
+                {[
+                  { color: '#EF4444', name: 'Rouge' },
+                  { color: '#F59E0B', name: 'Orange' },
+                  { color: '#10B981', name: 'Vert' },
+                  { color: '#3B82F6', name: 'Bleu' },
+                  { color: '#8B5CF6', name: 'Violet' },
+                  { color: '#EC4899', name: 'Rose' },
+                ].map((colorOption) => (
+                  <TouchableOpacity
+                    key={colorOption.color}
+                    style={[
+                      styles.colorOptionBudget,
+                      { backgroundColor: colorOption.color },
+                      newBudget.color === colorOption.color && styles.selectedColorBudget
+                    ]}
+                    onPress={() => setNewBudget({...newBudget, color: colorOption.color})}
+                  />
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
+              <Save size={20} color="#2E2E2E" strokeWidth={2} />
+              <Text style={styles.saveButtonText}>Sauvegarder</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1248,6 +1595,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  budgetCategoryRight: {
+    alignItems: 'flex-end',
+  },
+  budgetCategoryActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  budgetActionButton: {
+    padding: 6,
+    borderRadius: 6,
+  },
+  deleteBudgetButton: {},
+  colorOptionBudget: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedColorBudget: {
+    borderColor: '#2E2E2E',
+    borderWidth: 3,
   },
   budgetProgress: {
     flexDirection: 'row',
