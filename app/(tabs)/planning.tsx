@@ -916,11 +916,12 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 28,
     fontFamily: 'Poppins-Bold',
+    marginBottom: 4,
   },
   calendarSection: {
     flexDirection: 'row',
