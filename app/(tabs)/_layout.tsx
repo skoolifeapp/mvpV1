@@ -9,9 +9,9 @@ import Animated, {
   withSpring, 
   runOnJS 
 } from 'react-native-reanimated';
-import { Dimensions } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
@@ -30,20 +30,41 @@ export default function TabLayout() {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const translateX = useSharedValue(0);
+  const containerTranslateX = useSharedValue(0);
   
   const navigateToTab = (index: number) => {
     if (index >= 0 && index < tabs.length) {
       setCurrentIndex(index);
+      containerTranslateX.value = withSpring(-index * SCREEN_WIDTH, {
+        damping: 20,
+        stiffness: 90,
+      });
       router.push(tabs[index].route as any);
     }
   };
+
+  useEffect(() => {
+    containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
+      damping: 20,
+      stiffness: 90,
+    });
+  }, [currentIndex]);
   
   const gestureHandler = useAnimatedGestureHandler({
     onStart: (_, context: any) => {
       context.startX = translateX.value;
+      context.startContainerX = containerTranslateX.value;
     },
     onActive: (event, context) => {
       translateX.value = context.startX + event.translationX;
+      
+      // Coulissement progressif du conteneur
+      const newTranslateX = context.startContainerX + event.translationX;
+      const minTranslateX = -(tabs.length - 1) * SCREEN_WIDTH;
+      const maxTranslateX = 0;
+      
+      // Limiter le déplacement aux bornes
+      containerTranslateX.value = Math.max(minTranslateX, Math.min(maxTranslateX, newTranslateX));
     },
     onEnd: (event) => {
       const shouldSwipeLeft = event.translationX < -SWIPE_THRESHOLD && event.velocityX < -500;
@@ -55,6 +76,11 @@ export default function TabLayout() {
         if (nextIndex < tabs.length) {
           runOnJS(navigateToTab)(nextIndex);
         }
+          // Retour à la position actuelle si on ne peut pas aller plus loin
+          containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
+            damping: 20,
+            stiffness: 90,
+          });
       } else if (shouldSwipeRight) {
         // Swipe vers la droite - module précédent
         const prevIndex = currentIndex - 1;
@@ -66,7 +92,18 @@ export default function TabLayout() {
       translateX.value = withSpring(0, {
         damping: 20,
         stiffness: 90,
+      } else {
+        // Retour à la position actuelle si le swipe n'est pas assez fort
+        containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
+          damping: 20,
+          stiffness: 90,
+        });
       });
+          // Retour à la position actuelle si on ne peut pas aller plus loin
+          containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
+            damping: 20,
+            stiffness: 90,
+          });
     },
   });
   
@@ -76,10 +113,25 @@ export default function TabLayout() {
     };
   });
 
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: containerTranslateX.value }],
+    };
+  });
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PanGestureHandler onGestureEvent={gestureHandler}>
         <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+          <Animated.View style={[
+            { 
+              flex: 1,
+              flexDirection: 'row',
+              width: SCREEN_WIDTH * tabs.length,
+            }, 
+            containerAnimatedStyle
+          ]}>
+            {tabs.map((tab, index) => (
+              <View key={tab.name} style={{ width: SCREEN_WIDTH, flex: 1 }}>
           <Tabs
             screenOptions={{
               headerShown: false,
@@ -145,6 +197,9 @@ export default function TabLayout() {
               }}
             />
           </Tabs>
+              </View>
+            ))}
+          </Animated.View>
         </Animated.View>
       </PanGestureHandler>
     </GestureHandlerRootView>
