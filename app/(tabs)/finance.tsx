@@ -453,38 +453,33 @@ export default function FinanceScreen() {
       </View>
 
       {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
+      <View style={styles.actionButtons}>
+        <TouchableOpacity 
           style={[
-            styles.tab,
-            activeTab === 'transactions' && styles.activeTab,
-            { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }
+            styles.tabButton,
+            activeTab === 'transactions' && styles.activeTabButton,
+            { backgroundColor: activeTab === 'transactions' ? '#FFD840' : (isDarkMode ? '#374151' : '#F9FAFB') }
           ]}
           onPress={() => setActiveTab('transactions')}
         >
-          <TrendingUp size={20} color={activeTab === 'transactions' ? '#FFD840' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />
           <Text style={[
-            styles.tabText,
-            activeTab === 'transactions' && styles.activeTabText,
-            { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
+            styles.tabButtonText,
+            { color: activeTab === 'transactions' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280') }
           ]}>
             Transactions
           </Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity
+        <TouchableOpacity 
           style={[
-            styles.tab,
-            activeTab === 'budget' && styles.activeTab,
-            { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }
+            styles.tabButton,
+            activeTab === 'budget' && styles.activeTabButton,
+            { backgroundColor: activeTab === 'budget' ? '#FFD840' : (isDarkMode ? '#374151' : '#F9FAFB') }
           ]}
           onPress={() => setActiveTab('budget')}
         >
-          <Target size={20} color={activeTab === 'budget' ? '#FFD840' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />
           <Text style={[
-            styles.tabText,
-            activeTab === 'budget' && styles.activeTabText,
-            { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
+            styles.tabButtonText,
+            { color: activeTab === 'budget' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280') }
           ]}>
             Budget
           </Text>
@@ -725,32 +720,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  tab: {
+  tabButton: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 8,
+    borderRadius: 8,
   },
-  activeTab: {
-    backgroundColor: '#FFD840',
-  },
-  tabText: {
+  activeTabButton: {},
+  tabButtonText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#2E2E2E',
     fontWeight: '600',
   },
   alertCard: {
