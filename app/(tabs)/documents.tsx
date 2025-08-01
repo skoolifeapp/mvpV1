@@ -753,6 +753,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 20,
     gap: 8,
+    justifyContent: 'center',
   },
   sortButton: {
     paddingHorizontal: 16,
