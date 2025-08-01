@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Modal,
   Alert,
+  Animated,
 } from 'react-native';
 import { 
   RefreshCw, 
@@ -95,6 +96,8 @@ export default function FinanceScreen() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
 
+  const [rotateAnim] = useState(new Animated.Value(0));
+
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
@@ -138,9 +141,21 @@ export default function FinanceScreen() {
   const handleSync = () => {
     setIsSyncing(true);
     
+    // Démarrer l'animation de rotation
+    const rotateAnimation = Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    );
+    rotateAnimation.start();
+    
     // Simulation de synchronisation
     setTimeout(() => {
       setIsSyncing(false);
+      rotateAnimation.stop();
+      rotateAnim.setValue(0);
       Alert.alert(
         'Synchronisation terminée',
         'Vos nouvelles transactions ont été importées. Vous pouvez maintenant les catégoriser.',
@@ -200,6 +215,11 @@ export default function FinanceScreen() {
     closeEditTransaction();
     Alert.alert('Succès', 'Transaction modifiée avec succès !');
   };
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   const renderTransaction = (transaction: Transaction) => (
     <TouchableOpacity 
@@ -279,12 +299,13 @@ export default function FinanceScreen() {
           onPress={handleSync}
           disabled={isSyncing}
         >
-          <RefreshCw 
-            size={24} 
-            color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} 
-            strokeWidth={2}
-            style={[isSyncing && styles.spinning]}
-          />
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <RefreshCw 
+              size={24} 
+              color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} 
+              strokeWidth={2}
+            />
+          </Animated.View>
         </TouchableOpacity>
       </View>
 
@@ -538,9 +559,6 @@ const styles = StyleSheet.create({
   },
   syncButtonActive: {
     opacity: 0.7,
-  },
-  spinning: {
-    transform: [{ rotate: '360deg' }],
   },
   bankSection: {
     flexDirection: 'row',
