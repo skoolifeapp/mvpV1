@@ -591,6 +591,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     fontWeight: '500',
+    textAlign: 'center',
   },
   balanceAmount: {
     fontSize: 20,
