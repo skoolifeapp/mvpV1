@@ -320,7 +320,8 @@ export default function FinanceScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {/* Fixed Header Section */}
+      <View style={styles.fixedHeader}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
@@ -365,7 +366,10 @@ export default function FinanceScreen() {
             <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
         </View>
+      </View>
 
+      {/* Scrollable Content */}
+      <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
         {/* Balance Card */}
         <View style={[
           styles.balanceCard,
@@ -903,6 +907,12 @@ export default function FinanceScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  fixedHeader: {
+    backgroundColor: 'inherit',
+  },
+  scrollableContent: {
     flex: 1,
   },
   header: {
