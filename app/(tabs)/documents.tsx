@@ -60,38 +60,6 @@ export default function DocumentsScreen() {
   });
 
   const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: '1',
-      name: 'Garantie Visale.pdf',
-      category: 'Administratif',
-      size: '233.3 KB',
-      date: '07/07/2025',
-      categoryColor: '#8B5CF6',
-    },
-    {
-      id: '2',
-      name: 'Assurance Habitation.pdf',
-      category: 'Administratif',
-      size: '4.74 MB',
-      date: '07/07/2025',
-      categoryColor: '#8B5CF6',
-    },
-    {
-      id: '3',
-      name: 'Cerfa Bachelor.pdf',
-      category: 'École',
-      size: '530.42 KB',
-      date: '07/07/2025',
-      categoryColor: '#3B82F6',
-    },
-    {
-      id: '4',
-      name: 'Relevé de notes BTS CG.pdf',
-      category: 'École',
-      size: '176.83 KB',
-      date: '07/07/2025',
-      categoryColor: '#3B82F6',
-    },
   ]);
 
   const [searchQuery, setSearchQuery] = useState('');
