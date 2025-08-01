@@ -269,9 +269,6 @@ export default function FinanceScreen() {
           <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             Mes Finances
           </Text>
-          <Text style={[styles.subtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-            Synchronisé automatiquement
-          </Text>
         </View>
         <TouchableOpacity 
           style={[
