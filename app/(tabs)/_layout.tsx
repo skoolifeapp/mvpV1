@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { House, SquareCheck as CheckSquare, Calendar, FileText } from 'lucide-react-native';
+import { House, DollarSign, SquareCheck as CheckSquare, Calendar, FileText } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -26,6 +26,15 @@ export default function TabLayout() {
           title: 'Accueil',
           tabBarIcon: ({ size, color }) => (
             <House size={size} color={color} strokeWidth={2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="finance"
+        options={{
+          title: 'Finance',
+          tabBarIcon: ({ size, color }) => (
+            <DollarSign size={size} color={color} strokeWidth={2} />
           ),
         }}
       />
