@@ -75,35 +75,40 @@ export default function TabLayout() {
         const nextIndex = currentIndex + 1;
         if (nextIndex < tabs.length) {
           runOnJS(navigateToTab)(nextIndex);
+        } else {
         }
           // Retour à la position actuelle si on ne peut pas aller plus loin
           containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
             damping: 20,
             stiffness: 90,
           });
+        }
       } else if (shouldSwipeRight) {
         // Swipe vers la droite - module précédent
         const prevIndex = currentIndex - 1;
         if (prevIndex >= 0) {
           runOnJS(navigateToTab)(prevIndex);
+        } else {
+          // Retour à la position actuelle si on ne peut pas aller plus loin
+          containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
+            damping: 20,
+            stiffness: 90,
+          });
         }
-      }
-      
-      translateX.value = withSpring(0, {
-        damping: 20,
-        stiffness: 90,
       } else {
         // Retour à la position actuelle si le swipe n'est pas assez fort
         containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
           damping: 20,
           stiffness: 90,
         });
+      }
+      
+      translateX.value = withSpring(0, {
+        damping: 20,
+        stiffness: 90,
       });
-          // Retour à la position actuelle si on ne peut pas aller plus loin
-          containerTranslateX.value = withSpring(-currentIndex * SCREEN_WIDTH, {
-            damping: 20,
-            stiffness: 90,
-          });
+        }
+      }
     },
   });
   
