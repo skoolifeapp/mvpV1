@@ -1333,7 +1333,7 @@ const styles = StyleSheet.create({
   },
   balanceCard: {
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 20,
     marginBottom: 24,
     shadowColor: '#000',
@@ -1341,18 +1341,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    borderWidth: 2,
+    borderWidth: 1,
   },
   balanceLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter-Regular',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
   },
   balanceAmount: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Poppins-Bold',
-    marginBottom: 16,
+    marginBottom: 20,
     textAlign: 'center',
   },
   balanceStats: {
