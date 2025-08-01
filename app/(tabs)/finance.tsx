@@ -10,21 +10,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  X, 
-  Save, 
-  Type, 
-  DollarSign, 
-  Tag, 
-  Calendar,
-  CreditCard,
-  CreditCard as Edit3, 
-  Trash2,
-  PieChart
-} from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
   Poppins_700Bold,
@@ -48,8 +34,6 @@ interface Transaction {
   categoryColor: string;
 }
 
-type TabType = 'transactions' | 'budget';
-
 SplashScreen.preventAutoHideAsync();
 
 export default function FinanceScreen() {
@@ -63,7 +47,6 @@ export default function FinanceScreen() {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>('transactions');
   const [isAddTransactionVisible, setIsAddTransactionVisible] = useState(false);
   const [isEditTransactionVisible, setIsEditTransactionVisible] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -328,48 +311,8 @@ export default function FinanceScreen() {
           </View>
         </View>
 
-        {/* Tab Navigation */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'transactions' && styles.activeTab,
-              { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }
-            ]}
-            onPress={() => setActiveTab('transactions')}
-          >
-            <DollarSign size={20} color={activeTab === 'transactions' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />
-            <Text style={[
-              styles.tabText,
-              activeTab === 'transactions' && styles.activeTabText,
-              { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
-            ]}>
-              Transactions
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'budget' && styles.activeTab,
-              { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }
-            ]}
-            onPress={() => setActiveTab('budget')}
-          >
-            <PieChart size={20} color={activeTab === 'budget' ? '#2E2E2E' : (isDarkMode ? '#D1D5DB' : '#6B7280')} strokeWidth={2} />
-            <Text style={[
-              styles.tabText,
-              activeTab === 'budget' && styles.activeTabText,
-              { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
-            ]}>
-              Budget
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Transactions List */}
-        {activeTab === 'transactions' && (
-          <View style={styles.transactionsSection}>
+        <View style={styles.transactionsSection}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             Transactions
           </Text>
@@ -442,115 +385,6 @@ export default function FinanceScreen() {
             </View>
           )}
         </View>
-        )}
-
-        {/* Budget Section */}
-        {activeTab === 'budget' && (
-          <View style={styles.budgetSection}>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Budget mensuel
-            </Text>
-            
-            {/* Budget Categories */}
-            <View style={styles.budgetCategories}>
-              {expenseCategories.map((category) => {
-                const categoryExpenses = currentMonthTransactions
-                  .filter(t => t.type === 'expense' && t.category === category.name)
-                  .reduce((sum, t) => sum + t.amount, 0);
-                const budgetLimit = 200; // Budget par défaut
-                const percentage = Math.min((categoryExpenses / budgetLimit) * 100, 100);
-                
-                return (
-                  <View key={category.name} style={[
-                    styles.budgetCategoryCard,
-                    { 
-                      backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                      borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
-                    }
-                  ]}>
-                    <View style={styles.budgetCategoryHeader}>
-                      <View style={styles.budgetCategoryInfo}>
-                        <View style={[styles.budgetCategoryIcon, { backgroundColor: category.color }]}>
-                          <Text style={styles.budgetCategoryIconText}>
-                            {category.name.charAt(0)}
-                          </Text>
-                        </View>
-                        <View>
-                          <Text style={[styles.budgetCategoryName, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                            {category.name}
-                          </Text>
-                          <Text style={[styles.budgetCategoryAmount, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                            {categoryExpenses.toFixed(2)} € / {budgetLimit} €
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={[
-                        styles.budgetPercentage,
-                        { color: percentage > 80 ? '#EF4444' : percentage > 60 ? '#F59E0B' : '#10B981' }
-                      ]}>
-                        {percentage.toFixed(0)}%
-                      </Text>
-                    </View>
-                    
-                    <View style={[styles.budgetProgressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-                      <View 
-                        style={[
-                          styles.budgetProgressFill,
-                          { 
-                            width: `${percentage}%`,
-                            backgroundColor: percentage > 80 ? '#EF4444' : percentage > 60 ? '#F59E0B' : category.color
-                          }
-                        ]} 
-                      />
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-            
-            {/* Budget Summary */}
-            <View style={[
-              styles.budgetSummary,
-              { 
-                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-              }
-            ]}>
-              <Text style={[styles.budgetSummaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Résumé du budget
-              </Text>
-              
-              <View style={styles.budgetSummaryStats}>
-                <View style={styles.budgetSummaryItem}>
-                  <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Budget total
-                  </Text>
-                  <Text style={[styles.budgetSummaryValue, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    {(expenseCategories.length * 200).toFixed(2)} €
-                  </Text>
-                </View>
-                
-                <View style={styles.budgetSummaryItem}>
-                  <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Dépensé
-                  </Text>
-                  <Text style={[styles.budgetSummaryValue, { color: '#EF4444' }]}>
-                    {totalExpenses.toFixed(2)} €
-                  </Text>
-                </View>
-                
-                <View style={styles.budgetSummaryItem}>
-                  <Text style={[styles.budgetSummaryLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Restant
-                  </Text>
-                  <Text style={[styles.budgetSummaryValue, { color: '#10B981' }]}>
-                    {((expenseCategories.length * 200) - totalExpenses).toFixed(2)} €
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        )}
       </ScrollView>
 
       {/* Add Transaction Modal */}
@@ -1246,129 +1080,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Manrope-Bold',
     color: '#2E2E2E',
-  },
-  // Tab Styles
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 24,
-    gap: 8,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    gap: 8,
-  },
-  activeTab: {
-    backgroundColor: '#FFD840',
-  },
-  tabText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#2E2E2E',
-    fontWeight: '600',
-  },
-  // Budget Styles
-  budgetSection: {
-    paddingHorizontal: 20,
-  },
-  budgetCategories: {
-    gap: 12,
-    marginBottom: 24,
-  },
-  budgetCategoryCard: {
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-  },
-  budgetCategoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  budgetCategoryInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  budgetCategoryIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  budgetCategoryIconText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-  },
-  budgetCategoryName: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-    marginBottom: 2,
-  },
-  budgetCategoryAmount: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  budgetPercentage: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-  },
-  budgetProgressBar: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  budgetProgressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  budgetSummary: {
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-  },
-  budgetSummaryTitle: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  budgetSummaryStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  budgetSummaryItem: {
-    alignItems: 'center',
-  },
-  budgetSummaryLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    marginBottom: 4,
-  },
-  budgetSummaryValue: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
   },
 });
