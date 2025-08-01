@@ -923,19 +923,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     lineHeight: 24,
   },
-  addTransactionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  addTransactionButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
   transactionsContainer: {
     paddingBottom: 20,
   },
