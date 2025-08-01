@@ -10,20 +10,7 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import { 
-  RefreshCw, 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown, 
-  X, 
-  Tag, 
-  ChevronDown,
-  CreditCard as Edit3,
-  Check,
-  PieChart,
-  Target,
-  AlertCircle
-} from 'lucide-react-native';
+import { RefreshCw, DollarSign, TrendingUp, TrendingDown, X, Tag, ChevronDown, CreditCard as Edit3, Check, ChartPie as PieChart, Target, CircleAlert as AlertCircle } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
   Poppins_700Bold,
