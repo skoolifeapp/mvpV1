@@ -1567,7 +1567,6 @@ const styles = StyleSheet.create({
   budgetCategoryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 12,
   },
   budgetCategoryInfo: {
@@ -1575,11 +1574,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   budgetCategoryIcon: {
+    overflow: 'hidden',
+  },
+  budgetCardTouchable: {
+    flexDirection: 'row',
+    flex: 1,
+    padding: 16,
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginRight: 12,
   },
   budgetCategoryIconText: {
@@ -1771,5 +1774,58 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Manrope-Bold',
     color: '#2E2E2E',
+  },
+  // Budget Options Modal Styles
+  budgetOptionsContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  budgetDetailsCard: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+  },
+  budgetOptionsActions: {
+    gap: 16,
+  },
+  budgetOptionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+  },
+  budgetOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  budgetOptionContent: {
+    flex: 1,
+  },
+  budgetOptionTitle: {
+    fontSize: 16,
+    fontFamily: 'Manrope-Bold',
+    marginBottom: 4,
+  },
+  budgetOptionSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
 });
