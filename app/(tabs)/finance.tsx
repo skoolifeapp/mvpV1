@@ -302,7 +302,7 @@ export default function FinanceScreen() {
         <View style={styles.bankInfo}>
           <DollarSign size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            Connecter votre compte bancaire
+            Compte bancaire
           </Text>
         </View>
         <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
