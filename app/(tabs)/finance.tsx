@@ -273,14 +273,14 @@ export default function FinanceScreen() {
           style={[
             styles.syncButton,
             isSyncing && styles.syncButtonActive,
-            { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }
+            { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }
           ]}
           onPress={handleSync}
           disabled={isSyncing}
         >
           <RefreshCw 
             size={24} 
-            color={isDarkMode ? '#F9FAFB' : '#FFFFFF'} 
+            color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} 
             strokeWidth={2}
             style={[isSyncing && styles.spinning]}
           />
