@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart, Receipt } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart, Receipt, RefreshCw } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
   Poppins_700Bold,
@@ -532,7 +533,7 @@ export default function FinanceScreen() {
           style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
           onPress={() => setIsAddTransactionVisible(true)}
         >
-          <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+          <RefreshCw size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
         </TouchableOpacity>
       )}
 
@@ -1023,6 +1024,7 @@ const styles = StyleSheet.create({
   // Tab Styles
   tabContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     marginBottom: 20,
     gap: 8,
