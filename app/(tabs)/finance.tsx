@@ -20,6 +20,7 @@ import {
   DollarSign, 
   Tag, 
   Calendar,
+  CreditCard,
   CreditCard as Edit3, 
   Trash2 
 } from 'lucide-react-native';
@@ -246,6 +247,25 @@ export default function FinanceScreen() {
             onPress={() => setIsAddTransactionVisible(true)}
           >
             <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Bank Connection Section */}
+        <View style={[
+          styles.bankSection,
+          { 
+            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+            borderColor: isDarkMode ? '#4B5563' : 'transparent'
+          }
+        ]}>
+          <View style={styles.bankInfo}>
+            <CreditCard size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+            <Text style={[styles.bankText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Compte bancaire
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.connectBankButton} onPress={handleConnectBank}>
+            <Text style={styles.connectBankButtonText}>Connecter</Text>
           </TouchableOpacity>
         </View>
 
@@ -771,6 +791,41 @@ const styles = StyleSheet.create({
   addButton: {
     padding: 8,
     borderRadius: 8,
+  },
+  bankSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  bankInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bankText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+  },
+  connectBankButton: {
+    backgroundColor: '#FFD840',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  connectBankButtonText: {
+    color: '#2E2E2E',
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+    fontSize: 14,
   },
   monthNavigation: {
     flexDirection: 'row',
