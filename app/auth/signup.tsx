@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, ArrowLeft } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
@@ -117,6 +118,11 @@ export default function SignUpScreen() {
 
           {/* Header */}
           <View style={styles.header}>
+            <Image 
+              source={require('../../assets/images/SKOOLIFE - Logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Créer un compte</Text>
             <Text style={styles.subtitle}>Rejoignez la communauté Skoolife</Text>
           </View>
@@ -289,8 +295,13 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
+  logo: {
+    width: 200,
+    height: 60,
+    marginBottom: 16,
+  },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Poppins-Bold',
     color: '#2E2E2E',
     marginBottom: 8,

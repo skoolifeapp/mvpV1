@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
@@ -85,7 +86,11 @@ export default function LoginScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Skoolife</Text>
+            <Image 
+              source={require('../../assets/images/SKOOLIFE - Logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.subtitle}>Connectez-vous à votre compte</Text>
           </View>
 
@@ -197,10 +202,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 40,
   },
-  title: {
-    fontSize: 32,
-    fontFamily: 'Poppins-Bold',
-    color: '#2E2E2E',
+  logo: {
+    width: 200,
+    height: 80,
     marginBottom: 8,
   },
   subtitle: {
