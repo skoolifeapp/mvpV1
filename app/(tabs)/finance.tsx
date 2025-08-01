@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Plus, X, Save, Type, DollarSign, Tag, Calendar, CreditCard, CreditCard as Edit3, Trash2, ChartPie as PieChart, Receipt, RefreshCw } from 'lucide-react-native';
-  RefreshCw,
+import { useFonts, Poppins_700Bold, Manrope_700Bold } from '@expo-google-fonts/poppins';
 import {
   Inter_400Regular,
 } from '@expo-google-fonts/inter';
@@ -55,11 +57,20 @@ export default function FinanceScreen() {
     { name: 'Loisirs', budget: 100, spent: 0, color: '#10B981' },
     { name: 'Études', budget: 80, spent: 0, color: '#3B82F6' },
     { name: 'Santé', budget: 70, spent: 0, color: '#EC4899' },
+  ]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [newBudget, setNewBudget] = useState({
     name: '',
     budget: '',
     color: '#EF4444',
+  });
+  const [newTransaction, setNewTransaction] = useState({
+    title: '',
+    amount: '',
+    type: 'expense' as 'income' | 'expense',
+    category: '',
+    date: '',
+    categoryColor: '#EF4444',
   });
 
   useEffect(() => {
@@ -70,7 +81,7 @@ export default function FinanceScreen() {
 
   if (!fontsLoaded && !fontError) {
     return null;
- }
+  }
 
   const incomeCategories = [
     { name: 'Salaire', color: '#10B981' },
@@ -166,6 +177,18 @@ export default function FinanceScreen() {
       'Êtes-vous sûr de vouloir supprimer cette transaction ?',
       [
         { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            setTransactions(transactions.filter(transaction => transaction.id !== transactionId));
+            Alert.alert('Succès', 'Transaction supprimée avec succès !');
+          },
+        },
+      ]
+    );
+  };
+
   const handleBankSync = () => {
     setIsSyncing(true);
     
@@ -178,6 +201,33 @@ export default function FinanceScreen() {
         [{ text: 'Compris', style: 'default' }]
       );
     }, 2000);
+  };
+
+  const saveTransaction = () => {
+    if (!newTransaction.title.trim() || !newTransaction.amount.trim()) {
+      Alert.alert('Erreur', 'Le titre et le montant sont obligatoires');
+      return;
+    }
+
+    const amount = parseFloat(newTransaction.amount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Erreur', 'Le montant doit être un nombre positif');
+      return;
+    }
+
+    if (editingTransaction) {
+      const updatedTransaction: Transaction = {
+        ...editingTransaction,
+        title: newTransaction.title.trim(),
+        amount: amount,
+        type: newTransaction.type,
+        category: newTransaction.category || (newTransaction.type === 'income' ? 'Autre' : 'Alimentation'),
+        date: newTransaction.date || new Date().toISOString().split('T')[0],
+        categoryColor: newTransaction.categoryColor,
+      };
+
+      setTransactions(transactions.map(transaction => 
+        transaction.id === editingTransaction.id ? updatedTransaction : transaction
       ));
 
       closeEditTransaction();
@@ -430,17 +480,23 @@ export default function FinanceScreen() {
           <TouchableOpacity onPress={() => navigateMonth('prev')} activeOpacity={0.7}>
             <ChevronLeft size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
-              { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }
+          <Text style={[styles.monthTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
             {formatMonth(currentDate)}
+          </Text>
+          <TouchableOpacity 
+            style={[styles.syncButton, { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }]}
             onPress={handleBankSync}
             disabled={isSyncing}
-          <TouchableOpacity onPress={() => navigateMonth('next')} activeOpacity={0.7}>
+          >
             <RefreshCw 
               size={24} 
               color={isDarkMode ? '#F9FAFB' : '#FFFFFF'} 
               strokeWidth={2}
               style={isSyncing ? { transform: [{ rotate: '180deg' }] } : {}}
             />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigateMonth('next')} activeOpacity={0.7}>
+            <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
           </TouchableOpacity>
         </View>
       </View>
@@ -503,11 +559,21 @@ export default function FinanceScreen() {
                 <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
                   Connectez votre compte bancaire pour synchroniser automatiquement vos transactions.
                 </Text>
+                <TouchableOpacity 
+                  style={[styles.syncButton, { backgroundColor: isDarkMode ? '#374151' : '#3B82F6' }]}
+                  onPress={handleBankSync}
+                  disabled={isSyncing}
+                >
+                  <RefreshCw size={20} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+                  <Text style={[styles.syncButtonText, { color: isDarkMode ? '#F9FAFB' : '#FFFFFF' }]}>
+                    Synchroniser la banque
+                  </Text>
+                </TouchableOpacity>
               </View>
             ) : (
               <View style={styles.transactionsContainer}>
                 {currentMonthTransactions
-                onPress={handleBankSync}
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .map(transaction => (
                     <View key={transaction.id} style={[
                       styles.transactionCard,
@@ -555,9 +621,9 @@ export default function FinanceScreen() {
                         styles.transactionAmount,
                         { color: transaction.type === 'income' ? '#10B981' : '#EF4444' }
                       ]}>
-                <RefreshCw size={20} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+                        {transaction.type === 'income' ? '+' : '-'}{transaction.amount.toFixed(2)} €
                       </Text>
-                  Synchroniser la banque
+                    </View>
                   ))}
               </View>
             )}
@@ -613,7 +679,7 @@ export default function FinanceScreen() {
           style={[styles.floatingAddButton, { backgroundColor: isDarkMode ? '#374151' : '#FFD840' }]}
           onPress={() => setIsAddTransactionVisible(true)}
         >
-          <RefreshCw size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+          <Plus size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
         </TouchableOpacity>
       ) : activeTab === 'budget' && (
         <TouchableOpacity 
@@ -1031,6 +1097,168 @@ export default function FinanceScreen() {
                 value={newBudget.name}
                 onChangeText={(text) => setNewBudget({...newBudget, name: text})}
                 maxLength={30}
+              />
+            </View>
+
+            {/* Budget Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Montant du budget *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="0.00"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.budget}
+                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            </View>
+
+            {/* Color Field */}
+            <View style={styles.formGroup}>
+              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Couleur
+              </Text>
+              <View style={styles.colorGrid}>
+                {['#EF4444', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#EC4899'].map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      styles.colorOptionBudget,
+                      { backgroundColor: color },
+                      newBudget.color === color && styles.selectedColorBudget
+                    ]}
+                    onPress={() => setNewBudget({...newBudget, color: color})}
+                  />
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
+              <Save size={20} color="#2E2E2E" strokeWidth={2} />
+              <Text style={styles.saveButtonText}>Enregistrer le budget</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Edit Budget Modal */}
+      <Modal
+        visible={isEditBudgetVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={closeEditBudget}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <View style={styles.modalHeaderLeft}>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Modifier le budget
+              </Text>
+              <Text style={[styles.modalSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Mettez à jour votre budget
+              </Text>
+            </View>
+            <TouchableOpacity onPress={closeEditBudget} style={styles.closeButton}>
+              <X size={24} color={isDarkMode ? '#F9FAFB' : '#2E2E2E'} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {/* Name Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <Type size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Nom du budget *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="Ex: Vêtements"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.name}
+                onChangeText={(text) => setNewBudget({...newBudget, name: text})}
+                maxLength={30}
+              />
+            </View>
+
+            {/* Budget Field */}
+            <View style={styles.formGroup}>
+              <View style={styles.fieldHeader}>
+                <DollarSign size={20} color="#6B7280" strokeWidth={2} />
+                <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                  Montant du budget *
+                </Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  { 
+                    backgroundColor: isDarkMode ? '#374151' : '#F9FAFB',
+                    borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    color: isDarkMode ? '#F9FAFB' : '#2E2E2E'
+                  }
+                ]}
+                placeholder="0.00"
+                placeholderTextColor="#9CA3AF"
+                value={newBudget.budget}
+                onChangeText={(text) => setNewBudget({...newBudget, budget: text})}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            </View>
+
+            {/* Color Field */}
+            <View style={styles.formGroup}>
+              <Text style={[styles.fieldLabel, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Couleur
+              </Text>
+              <View style={styles.colorGrid}>
+                {['#EF4444', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#EC4899'].map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      styles.colorOptionBudget,
+                      { backgroundColor: color },
+                      newBudget.color === color && styles.selectedColorBudget
+                    ]}
+                    onPress={() => setNewBudget({...newBudget, color: color})}
+                  />
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={[styles.modalFooter, { borderTopColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+            <TouchableOpacity style={styles.saveButton} onPress={saveBudget}>
+              <Save size={20} color="#2E2E2E" strokeWidth={2} />
+              <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1113,6 +1341,19 @@ const styles = StyleSheet.create({
   monthTitle: {
     fontSize: 16,
     fontFamily: 'Manrope-Bold',
+  },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  syncButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
   },
   balanceCard: {
     borderRadius: 16,
@@ -1437,4 +1678,132 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+  },
+  modalHeaderLeft: {
+    flex: 1,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Manrope-Bold',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  formGroup: {
+    marginBottom: 24,
+  },
+  fieldHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  fieldLabel: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+  },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+  },
+  typeGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  typeOption: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedType: {
+    borderColor: '#2E2E2E',
+  },
+  typeOptionText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  categoryOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedCategory: {
+    borderColor: '#FFFFFF',
+  },
+  categoryOptionText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalFooter: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+  },
+  saveButton: {
+    backgroundColor: '#FFD840',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  saveButtonText: {
+    color: '#2E2E2E',
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+  },
 });
