@@ -882,7 +882,8 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 40,
+    paddingTop: 20,
   },
   emptyStateTitle: {
     fontSize: 20,
