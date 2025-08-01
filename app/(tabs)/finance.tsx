@@ -323,7 +323,10 @@ export default function FinanceScreen() {
         
         <Text style={[
           styles.balanceAmount,
-          { color: balance >= 0 ? '#10B981' : '#EF4444' }
+          { 
+            color: balance >= 0 ? '#10B981' : '#EF4444',
+            textAlign: 'center'
+          }
         ]}>
           {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
         </Text>
