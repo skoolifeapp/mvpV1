@@ -52,9 +52,6 @@ export default function HomeScreen() {
     tasksProgress: 71,
     todayEvents: 2,
     weekEvents: 8,
-    monthlyIncome: 1380,
-    monthlyExpenses: 605,
-    budgetPercentage: 34,
   };
 
   const navigateToModule = (module: string) => {
@@ -156,54 +153,6 @@ export default function HomeScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Finance Section */}
-        <TouchableOpacity 
-          style={[
-            styles.summarySection,
-            { 
-              backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-              borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-            }
-          ]}
-          onPress={() => navigateToModule('finance')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.summaryHeader}>
-            <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Ce mois-ci
-            </Text>
-            <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
-          </View>
-
-          <View style={styles.summaryStats}>
-            <View style={styles.summaryStatItem}>
-              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Revenus
-              </Text>
-              <Text style={styles.incomeText}>+{dashboardData.monthlyIncome} €</Text>
-            </View>
-            <View style={styles.summaryStatItem}>
-              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Dépenses
-              </Text>
-              <Text style={styles.expenseText}>-{dashboardData.monthlyExpenses} €</Text>
-            </View>
-          </View>
-
-          <View style={styles.budgetProgress}>
-            <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-              Budget utilisé: {dashboardData.budgetPercentage}%
-            </Text>
-            <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-              <View 
-                style={[
-                  styles.progressFill,
-                  { width: `${dashboardData.budgetPercentage}%` }
-                ]} 
-              />
-            </View>
-          </View>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -265,16 +214,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     marginBottom: 4,
-  },
-  incomeText: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-    color: '#10B981',
-  },
-  expenseText: {
-    fontSize: 16,
-    fontFamily: 'Manrope-Bold',
-    color: '#EF4444',
   },
   tasksPendingText: {
     fontSize: 16,
