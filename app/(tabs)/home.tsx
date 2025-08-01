@@ -325,9 +325,12 @@ export default function HomeScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Tableau de bord
-            </Text>
+            <View style={styles.headerLeft}>
+              <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Tableau de bord
+              </Text>
+              <Text style={styles.syncText}>Synchronisé en temps réel</Text>
+            </View>
             <TouchableOpacity 
               style={styles.userButton}
               onPress={() => setIsUserMenuVisible(true)}
@@ -337,293 +340,138 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Welcome Section */}
-          <View style={[
-            styles.welcomeSection,
-            { 
-              backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-              borderColor: isDarkMode ? '#4B5563' : 'transparent'
-            }
-          ]}>
-            <Text style={[styles.welcomeTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Bonjour Alex 👋
-            </Text>
-            <Text style={[styles.welcomeSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-              {new Date().toLocaleDateString('fr-FR', { 
-                weekday: 'long', 
-                day: 'numeric', 
-                month: 'long' 
-              })}
-            </Text>
-          </View>
-
-          {/* Overview Cards */}
-          <View style={styles.overviewSection}>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Vue d'ensemble
-            </Text>
-            
-            <View style={styles.metricsGrid}>
-              {/* Tasks Metric */}
-              <TouchableOpacity
-                style={[
-                  styles.metricSquare,
-                  { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }
-                ]}
-                onPress={() => navigateToModule('tasks')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.metricContent}>
-                  <Text style={[styles.metricLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Tâches
-                  </Text>
-                  <Text style={[styles.metricValue, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    {dashboardData.tasksPending}
-                  </Text>
-                  <Text style={[styles.metricUnit, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    en attente
-                  </Text>
-                </View>
-                <View style={styles.metricChart}>
-                  <View style={[
-                    styles.progressCircle,
-                    { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }
-                  ]}>
-                    <View 
-                      style={[
-                        styles.progressArc,
-                        { 
-                          borderColor: '#10B981',
-                          transform: [{ rotate: `${(dashboardData.tasksProgress * 3.6)}deg` }]
-                        }
-                      ]} 
-                    />
-                    <Text style={[styles.progressPercent, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      {dashboardData.tasksProgress}%
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              {/* Planning Metric */}
-              <TouchableOpacity
-                style={[
-                  styles.metricSquare,
-                  { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }
-                ]}
-                onPress={() => navigateToModule('planning')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.metricContent}>
-                  <Text style={[styles.metricLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Aujourd'hui
-                  </Text>
-                  <Text style={[styles.metricValue, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    {dashboardData.todayEvents}
-                  </Text>
-                  <Text style={[styles.metricUnit, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    événements
-                  </Text>
-                </View>
-                <View style={styles.metricChart}>
-                  <View style={[
-                    styles.progressCircle,
-                    { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }
-                  ]}>
-                    <View 
-                      style={[
-                        styles.progressArc,
-                        { 
-                          borderColor: '#3B82F6',
-                          transform: [{ rotate: `${Math.min(dashboardData.weekEvents * 15, 360)}deg` }]
-                        }
-                      ]} 
-                    />
-                    <Text style={[styles.progressPercent, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      {dashboardData.weekEvents}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              {/* Finance Metric */}
-              <TouchableOpacity
-                style={[
-                  styles.metricSquare,
-                  { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }
-                ]}
-                onPress={() => navigateToModule('finance')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.metricContent}>
-                  <Text style={[styles.metricLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Budget
-                  </Text>
-                  <Text style={[styles.metricValue, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    {dashboardData.monthlyExpenses}€
-                  </Text>
-                  <Text style={[styles.metricUnit, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    dépensés
-                  </Text>
-                </View>
-                <View style={styles.metricChart}>
-                  <View style={[
-                    styles.progressCircle,
-                    { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }
-                  ]}>
-                    <View 
-                      style={[
-                        styles.progressArc,
-                        { 
-                          borderColor: dashboardData.budgetPercentage > 80 ? '#EF4444' : '#FFD840',
-                          transform: [{ rotate: `${Math.min(dashboardData.budgetPercentage * 3.6, 360)}deg` }]
-                        }
-                      ]} 
-                    />
-                    <Text style={[styles.progressPercent, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      {dashboardData.budgetPercentage}%
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              {/* Documents Metric */}
-              <TouchableOpacity
-                style={[
-                  styles.metricSquare,
-                  { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }
-                ]}
-                onPress={() => navigateToModule('documents')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.metricContent}>
-                  <Text style={[styles.metricLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    Documents
-                  </Text>
-                  <Text style={[styles.metricValue, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    0
-                  </Text>
-                  <Text style={[styles.metricUnit, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    fichiers
-                  </Text>
-                </View>
-                <View style={styles.metricChart}>
-                  <View style={[
-                    styles.progressCircle,
-                    { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }
-                  ]}>
-                    <View 
-                      style={[
-                        styles.progressArc,
-                        { 
-                          borderColor: '#8B5CF6',
-                          transform: [{ rotate: '0deg' }]
-                        }
-                      ]} 
-                    />
-                    <Text style={[styles.progressPercent, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      0
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
+          {/* Tasks Section */}
+          <TouchableOpacity 
+            style={[
+              styles.summarySection,
+              { 
+                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+              }
+            ]}
+            onPress={() => navigateToModule('tasks')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.summaryHeader}>
+              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Mes tâches
+              </Text>
+              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
             </View>
-          </View>
 
-          {/* Activity Section */}
-          <View style={styles.activitySection}>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Activité récente
-            </Text>
-            
-            <View style={styles.activityContainer}>
-              {dashboardData.tasksPending > 0 && (
-                <View style={[
-                  styles.activityCard,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-                  }
-                ]}>
-                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
-                    <Text style={styles.activityEmoji}>⏳</Text>
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={[styles.activityTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      {dashboardData.tasksPending} tâche{dashboardData.tasksPending > 1 ? 's' : ''} en attente
-                    </Text>
-                    <Text style={[styles.activitySubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                      À terminer
-                    </Text>
-                  </View>
-                </View>
-              )}
-              
-              {dashboardData.todayEvents > 0 && (
-                <View style={[
-                  styles.activityCard,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-                  }
-                ]}>
-                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
-                    <Text style={styles.activityEmoji}>📅</Text>
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={[styles.activityTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      {dashboardData.todayEvents} événement{dashboardData.todayEvents > 1 ? 's' : ''} aujourd'hui
-                    </Text>
-                    <Text style={[styles.activitySubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                      Planning du jour
-                    </Text>
-                  </View>
-                </View>
-              )}
-              
-              <View style={[
-                styles.activityCard,
-                { 
-                  backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                  borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-                }
-              ]}>
-                <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
-                  <Text style={styles.activityEmoji}>💰</Text>
-                </View>
-                <View style={styles.activityContent}>
-                  <Text style={[styles.activityTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                    Budget utilisé à {dashboardData.budgetPercentage}%
-                  </Text>
-                  <Text style={[styles.activitySubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                    {dashboardData.monthlyExpenses}€ dépensés ce mois
-                  </Text>
-                </View>
+            <View style={styles.summaryStats}>
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  À faire
+                </Text>
+                <Text style={styles.tasksPendingText}>{dashboardData.tasksPending}</Text>
               </View>
-              
-              {(dashboardData.tasksPending === 0 && dashboardData.todayEvents === 0) && (
-                <View style={[
-                  styles.activityCard,
-                  { 
-                    backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                    borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-                  }
-                ]}>
-                  <View style={[styles.activityIcon, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
-                    <Text style={styles.activityEmoji}>✨</Text>
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={[styles.activityTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                      Tout est à jour !
-                    </Text>
-                    <Text style={[styles.activitySubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                      Aucune tâche ou événement en attente
-                    </Text>
-                  </View>
-                </View>
-              )}
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Terminées
+                </Text>
+                <Text style={styles.tasksCompletedText}>{dashboardData.tasksCompleted}</Text>
+              </View>
             </View>
-          </View>
+
+            <View style={styles.budgetProgress}>
+              <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Progression: {dashboardData.tasksProgress}%
+              </Text>
+              <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+                <View 
+                  style={[
+                    styles.progressFill,
+                    { width: `${dashboardData.tasksProgress}%` }
+                  ]} 
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Planning Section */}
+          <TouchableOpacity 
+            style={[
+              styles.summarySection,
+              { 
+                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+              }
+            ]}
+            onPress={() => navigateToModule('planning')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.summaryHeader}>
+              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Mon planning
+              </Text>
+              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
+            </View>
+
+            <View style={styles.summaryStats}>
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Aujourd'hui
+                </Text>
+                <Text style={styles.planningTodayText}>{dashboardData.todayEvents}</Text>
+              </View>
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Cette semaine
+                </Text>
+                <Text style={styles.planningWeekText}>{dashboardData.weekEvents}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Finance Section */}
+          <TouchableOpacity 
+            style={[
+              styles.summarySection,
+              { 
+                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+              }
+            ]}
+            onPress={() => navigateToModule('finance')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.summaryHeader}>
+              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+                Ce mois-ci
+              </Text>
+              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
+            </View>
+
+            <View style={styles.summaryStats}>
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Revenus
+                </Text>
+                <Text style={styles.incomeText}>+{dashboardData.monthlyIncome} €</Text>
+              </View>
+              <View style={styles.summaryStatItem}>
+                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                  Dépenses
+                </Text>
+                <Text style={styles.expenseText}>-{dashboardData.monthlyExpenses} €</Text>
+              </View>
+            </View>
+
+            <View style={styles.budgetProgress}>
+              <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Budget utilisé: {dashboardData.budgetPercentage}%
+              </Text>
+              <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+                <View 
+                  style={[
+                    styles.progressFill,
+                    { width: `${dashboardData.budgetPercentage}%` }
+                  ]} 
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
 
@@ -772,10 +620,19 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
   },
-  title: {
+  headerLeft: {
+    flex: 1,
+  },
+  greeting: {
     fontSize: 28,
     fontFamily: 'Poppins-Bold',
     marginBottom: 4,
+  },
+  syncText: {
+    fontSize: 14,
+    color: '#10B981',
+    fontFamily: 'Inter-Regular',
+    fontWeight: '500',
   },
   userButton: {
     width: 48,
@@ -795,105 +652,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     color: '#2E2E2E',
   },
-  welcomeSection: {
+  summarySection: {
     marginHorizontal: 20,
-    marginBottom: 24,
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
-  },
-  welcomeSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  overviewSection: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
-  metricSquare: {
-    width: '47%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    justifyContent: 'space-between',
-  },
-  metricContent: {
-    flex: 1,
-  },
-  metricLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  metricValue: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 2,
-  },
-  metricUnit: {
-    fontSize: 11,
-    fontFamily: 'Inter-Regular',
-  },
-  metricChart: {
-    alignItems: 'flex-end',
-  },
-  progressCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  progressArc: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 3,
-    borderTopColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-  progressPercent: {
-    fontSize: 10,
-    fontFamily: 'Inter-Regular',
-    fontWeight: '600',
-  },
-  activitySection: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  activityContainer: {
-    gap: 12,
-  },
-  activityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    padding: 16,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -901,34 +664,28 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 2,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Manrope-Bold',
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
-  activityIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  summaryTitle: {
+    fontSize: 18,
+    fontFamily: 'Manrope-Bold',
+  },
+  summaryStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  summaryStatItem: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
   },
-  activityEmoji: {
-    fontSize: 16,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
+  summaryStatLabel: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  activitySubtitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
+    marginBottom: 4,
   },
   incomeText: {
     fontSize: 16,
@@ -959,6 +716,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Manrope-Bold',
     color: '#6366F1',
+  },
+  budgetProgress: {
+    marginTop: 4,
+  },
+  budgetLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#FFD840',
+    borderRadius: 4,
   },
   // Menu Styles
   menuContainer: {
