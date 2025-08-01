@@ -842,6 +842,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 24,
     gap: 8,
+    justifyContent: 'center',
   },
   filterTab: {
     paddingHorizontal: 20,
