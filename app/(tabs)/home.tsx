@@ -6,18 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Modal,
-  Alert,
 } from 'react-native';
 import { 
   ChevronRight, 
-  User, 
-  Settings, 
-  LogOut, 
-  X, 
-  Bell, 
-  CircleHelp as HelpCircle, 
-  Moon 
 } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
@@ -38,7 +29,6 @@ SplashScreen.preventAutoHideAsync();
 export default function HomeScreen() {
   const router = useRouter();
   const { isDarkMode, toggleDarkMode } = useTheme();
-  const [isUserMenuVisible, setIsUserMenuVisible] = useState(false);
   
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Bold': Poppins_700Bold,
@@ -67,343 +57,155 @@ export default function HomeScreen() {
     budgetPercentage: 34,
   };
 
-  const userData = {
-    name: 'Alex Martin',
-    email: 'alex.martin@skoolife.com',
-    initial: 'A',
-  };
-
   const navigateToModule = (module: string) => {
     router.push(`/(tabs)/${module}` as any);
   };
 
-  const handleMenuAction = (action: string) => {
-    setIsUserMenuVisible(false);
-    
-    switch (action) {
-      case 'profile':
-        Alert.alert('Profil', 'Fonctionnalité à venir');
-        break;
-      case 'settings':
-        Alert.alert('Paramètres', 'Fonctionnalité à venir');
-        break;
-      case 'notifications':
-        Alert.alert('Notifications', 'Fonctionnalité à venir');
-        break;
-      case 'nightmode':
-        toggleDarkMode();
-        Alert.alert(
-          'Mode nuit',
-          `Mode ${!isDarkMode ? 'nuit' : 'jour'} activé !`,
-          [{ text: 'OK', style: 'default' }]
-        );
-        break;
-      case 'help':
-        Alert.alert('Aide', 'Fonctionnalité à venir');
-        break;
-      case 'logout':
-        Alert.alert(
-          'Déconnexion',
-          'Êtes-vous sûr de vouloir vous déconnecter ?',
-          [
-            { text: 'Annuler', style: 'cancel' },
-            { 
-              text: 'Déconnexion', 
-              style: 'destructive', 
-              onPress: () => router.replace('/auth/login')
-            }
-          ]
-        );
-        break;
-    }
-  };
-
   return (
-    <>
-      <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Tableau de bord
-              </Text>
-              <Text style={styles.syncText}>Synchronisé en temps réel</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.userButton}
-              onPress={() => setIsUserMenuVisible(true)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.userAvatar}>{userData.initial}</Text>
-            </TouchableOpacity>
-          </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Tableau de bord
+          </Text>
+          <Text style={styles.syncText}>Synchronisé en temps réel</Text>
+        </View>
 
-          {/* Tasks Section */}
-          <TouchableOpacity 
-            style={[
-              styles.summarySection,
-              { 
-                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-              }
-            ]}
-            onPress={() => navigateToModule('tasks')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Mes tâches
-              </Text>
-              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
-            </View>
-
-            <View style={styles.summaryStats}>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  À faire
-                </Text>
-                <Text style={styles.tasksPendingText}>{dashboardData.tasksPending}</Text>
-              </View>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Terminées
-                </Text>
-                <Text style={styles.tasksCompletedText}>{dashboardData.tasksCompleted}</Text>
-              </View>
-            </View>
-
-            <View style={styles.budgetProgress}>
-              <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Progression: {dashboardData.tasksProgress}%
-              </Text>
-              <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-                <View 
-                  style={[
-                    styles.progressFill,
-                    { width: `${dashboardData.tasksProgress}%` }
-                  ]} 
-                />
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Planning Section */}
-          <TouchableOpacity 
-            style={[
-              styles.summarySection,
-              { 
-                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-              }
-            ]}
-            onPress={() => navigateToModule('planning')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Mon planning
-              </Text>
-              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
-            </View>
-
-            <View style={styles.summaryStats}>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Aujourd'hui
-                </Text>
-                <Text style={styles.planningTodayText}>{dashboardData.todayEvents}</Text>
-              </View>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Cette semaine
-                </Text>
-                <Text style={styles.planningWeekText}>{dashboardData.weekEvents}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Finance Section */}
-          <TouchableOpacity 
-            style={[
-              styles.summarySection,
-              { 
-                backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-                borderColor: isDarkMode ? '#4B5563' : '#FFD840'
-              }
-            ]}
-            onPress={() => navigateToModule('finance')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Ce mois-ci
-              </Text>
-              <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
-            </View>
-
-            <View style={styles.summaryStats}>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Revenus
-                </Text>
-                <Text style={styles.incomeText}>+{dashboardData.monthlyIncome} €</Text>
-              </View>
-              <View style={styles.summaryStatItem}>
-                <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                  Dépenses
-                </Text>
-                <Text style={styles.expenseText}>-{dashboardData.monthlyExpenses} €</Text>
-              </View>
-            </View>
-
-            <View style={styles.budgetProgress}>
-              <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Budget utilisé: {dashboardData.budgetPercentage}%
-              </Text>
-              <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-                <View 
-                  style={[
-                    styles.progressFill,
-                    { width: `${dashboardData.budgetPercentage}%` }
-                  ]} 
-                />
-              </View>
-            </View>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-
-      {/* User Menu Modal */}
-      <Modal
-        visible={isUserMenuVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setIsUserMenuVisible(false)}
-      >
-        <SafeAreaView style={[styles.menuContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-          {/* Menu Header */}
-          <View style={styles.menuHeader}>
-            <View style={styles.menuHeaderLeft}>
-              <Text style={[styles.menuTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Mon compte
-              </Text>
-              <Text style={[styles.menuSubtitle, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                Gérez votre profil Skoolife
-              </Text>
-            </View>
-            <TouchableOpacity 
-              onPress={() => setIsUserMenuVisible(false)} 
-              style={styles.closeButton}
-            >
-              <X size={24} color={isDarkMode ? "#F9FAFB" : "#2E2E2E"} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-
-          {/* User Profile Section */}
-          <View style={[
-            styles.profileSection,
+        {/* Tasks Section */}
+        <TouchableOpacity 
+          style={[
+            styles.summarySection,
             { 
               backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
               borderColor: isDarkMode ? '#4B5563' : '#FFD840'
             }
-          ]}>
-            <View style={[styles.profileAvatar, { backgroundColor: isDarkMode ? '#4B5563' : '#F9FAFB' }]}>
-              <Text style={[styles.profileAvatarText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {userData.initial}
+          ]}
+          onPress={() => navigateToModule('tasks')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.summaryHeader}>
+            <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Mes tâches
+            </Text>
+            <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
+          </View>
+
+          <View style={styles.summaryStats}>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                À faire
               </Text>
+              <Text style={styles.tasksPendingText}>{dashboardData.tasksPending}</Text>
             </View>
-            <View style={styles.profileInfo}>
-              <Text style={[styles.profileName, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                {userData.name}
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Terminées
               </Text>
-              <Text style={[styles.profileEmail, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
-                {userData.email}
-              </Text>
+              <Text style={styles.tasksCompletedText}>{dashboardData.tasksCompleted}</Text>
             </View>
           </View>
 
-          {/* Menu Options */}
-          <View style={styles.menuOptions}>
-            <TouchableOpacity 
-              style={[styles.menuOption, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => handleMenuAction('profile')}
-              activeOpacity={0.7}
-            >
-              <User size={20} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-              <Text style={[styles.menuOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Mon profil
-              </Text>
-              <ChevronRight size={16} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.menuOption, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => handleMenuAction('notifications')}
-              activeOpacity={0.7}
-            >
-              <Bell size={20} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-              <Text style={[styles.menuOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Notifications
-              </Text>
-              <ChevronRight size={16} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.menuOption, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => handleMenuAction('nightmode')}
-              activeOpacity={0.7}
-            >
-              <Moon size={20} color={isDarkMode ? "#FFD840" : "#6B7280"} strokeWidth={2} />
-              <Text style={[styles.menuOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Mode nuit {isDarkMode ? '(Activé)' : ''}
-              </Text>
-              <ChevronRight size={16} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.menuOption, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => handleMenuAction('settings')}
-              activeOpacity={0.7}
-            >
-              <Settings size={20} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-              <Text style={[styles.menuOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Paramètres
-              </Text>
-              <ChevronRight size={16} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.menuOption, { backgroundColor: isDarkMode ? '#374151' : '#FFFFFF' }]}
-              onPress={() => handleMenuAction('help')}
-              activeOpacity={0.7}
-            >
-              <HelpCircle size={20} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-              <Text style={[styles.menuOptionText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Aide & Support
-              </Text>
-              <ChevronRight size={16} color={isDarkMode ? "#D1D5DB" : "#6B7280"} strokeWidth={2} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[
-                styles.menuOption, 
-                styles.logoutOption,
-                { backgroundColor: isDarkMode ? '#7F1D1D' : '#FEF2F2' }
-              ]}
-              onPress={() => handleMenuAction('logout')}
-              activeOpacity={0.7}
-            >
-              <LogOut size={20} color="#EF4444" strokeWidth={2} />
-              <Text style={[styles.menuOptionText, styles.logoutText]}>
-                Déconnexion
-              </Text>
-              <ChevronRight size={16} color="#EF4444" strokeWidth={2} />
-            </TouchableOpacity>
+          <View style={styles.budgetProgress}>
+            <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              Progression: {dashboardData.tasksProgress}%
+            </Text>
+            <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+              <View 
+                style={[
+                  styles.progressFill,
+                  { width: `${dashboardData.tasksProgress}%` }
+                ]} 
+              />
+            </View>
           </View>
-        </SafeAreaView>
-      </Modal>
-    </>
+        </TouchableOpacity>
+
+        {/* Planning Section */}
+        <TouchableOpacity 
+          style={[
+            styles.summarySection,
+            { 
+              backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+              borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+            }
+          ]}
+          onPress={() => navigateToModule('planning')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.summaryHeader}>
+            <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Mon planning
+            </Text>
+            <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
+          </View>
+
+          <View style={styles.summaryStats}>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Aujourd'hui
+              </Text>
+              <Text style={styles.planningTodayText}>{dashboardData.todayEvents}</Text>
+            </View>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Cette semaine
+              </Text>
+              <Text style={styles.planningWeekText}>{dashboardData.weekEvents}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* Finance Section */}
+        <TouchableOpacity 
+          style={[
+            styles.summarySection,
+            { 
+              backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+              borderColor: isDarkMode ? '#4B5563' : '#FFD840'
+            }
+          ]}
+          onPress={() => navigateToModule('finance')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.summaryHeader}>
+            <Text style={[styles.summaryTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Ce mois-ci
+            </Text>
+            <ChevronRight size={16} color="#6B7280" strokeWidth={2} />
+          </View>
+
+          <View style={styles.summaryStats}>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Revenus
+              </Text>
+              <Text style={styles.incomeText}>+{dashboardData.monthlyIncome} €</Text>
+            </View>
+            <View style={styles.summaryStatItem}>
+              <Text style={[styles.summaryStatLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+                Dépenses
+              </Text>
+              <Text style={styles.expenseText}>-{dashboardData.monthlyExpenses} €</Text>
+            </View>
+          </View>
+
+          <View style={styles.budgetProgress}>
+            <Text style={[styles.budgetLabel, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
+              Budget utilisé: {dashboardData.budgetPercentage}%
+            </Text>
+            <View style={[styles.progressBar, { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
+              <View 
+                style={[
+                  styles.progressFill,
+                  { width: `${dashboardData.budgetPercentage}%` }
+                ]} 
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -414,13 +216,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 24,
-  },
-  headerLeft: {
-    flex: 1,
   },
   greeting: {
     fontSize: 28,
@@ -432,24 +230,6 @@ const styles = StyleSheet.create({
     color: '#10B981',
     fontFamily: 'Inter-Regular',
     fontWeight: '500',
-  },
-  userButton: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#FFD840',
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  userAvatar: {
-    fontSize: 20,
-    fontFamily: 'Poppins-Bold',
-    color: '#2E2E2E',
   },
   summarySection: {
     marginHorizontal: 20,
@@ -533,102 +313,5 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#FFD840',
     borderRadius: 4,
-  },
-  // Menu Styles
-  menuContainer: {
-    flex: 1,
-  },
-  menuHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  menuHeaderLeft: {
-    flex: 1,
-  },
-  menuTitle: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
-  },
-  menuSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  closeButton: {
-    padding: 8,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-  },
-  profileAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  profileAvatarText: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  profileName: {
-    fontSize: 18,
-    fontFamily: 'Manrope-Bold',
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  menuOptions: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-  },
-  menuOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  menuOptionText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  logoutOption: {
-    marginTop: 16,
-  },
-  logoutText: {
-    color: '#EF4444',
-    fontWeight: '500',
   },
 });
