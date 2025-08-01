@@ -86,7 +86,7 @@ export default function FinanceScreen() {
 
   if (!fontsLoaded && !fontError) {
     return null;
-  },
+ }
 
   const incomeCategories = [
     { name: 'Salaire', color: '#10B981' },
