@@ -409,7 +409,7 @@ export default function TasksScreen() {
             </Text>
             <Text style={[styles.emptyStateText, { color: isDarkMode ? '#D1D5DB' : '#6B7280' }]}>
               {currentFilter === 'Toutes' ? 'Commencez par ajouter votre première tâche !' :
-               currentFilter === 'À faire' ? 'Toutes vos tâches sont terminées ! 🎉' :
+               currentFilter === 'À faire' ? 'Toutes vos tâches sont terminées !' :
                'Vous n\'avez pas encore terminé de tâches.'}
             </Text>
             {currentFilter !== 'Faites' && (
