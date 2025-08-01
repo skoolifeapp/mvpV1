@@ -65,7 +65,7 @@ export default function TabLayout() {
       
       // Limiter le déplacement aux bornes
       containerTranslateX.value = Math.max(minTranslateX, Math.min(maxTranslateX, newTranslateX));
-    }
+    },
     onEnd: (event) => {
       const shouldSwipeLeft = event.translationX < -SWIPE_THRESHOLD && event.velocityX < -500;
       const shouldSwipeRight = event.translationX > SWIPE_THRESHOLD && event.velocityX > 500;
