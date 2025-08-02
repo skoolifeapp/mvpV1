@@ -118,9 +118,11 @@ export default function SignUpScreen() {
 
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Text style={styles.logoText}>SKOOLIFE</Text>
-            </View>
+            <Image 
+              source={require('../../assets/images/SKOOLIFE - Logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Créer un compte</Text>
             <Text style={styles.subtitle}>Rejoignez la communauté Skoolife</Text>
           </View>
@@ -293,20 +295,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  logo: {
     width: 280,
-    height: 80,
+    height: 100,
     marginBottom: 16,
-    backgroundColor: '#FFD840',
-    borderRadius: 16,
-  },
-  logoText: {
-    fontSize: 32,
-    fontFamily: 'Poppins-Bold',
-    color: '#2E2E2E',
-    letterSpacing: 2,
   },
   title: {
     fontSize: 28,

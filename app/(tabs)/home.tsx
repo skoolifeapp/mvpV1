@@ -53,34 +53,6 @@ interface BudgetCategory {
   color: string;
 }
 
-interface Task {
-  id: string;
-  title: string;
-  category: string;
-  priority: 'Haute' | 'Moyenne' | 'Basse';
-  dueDate: string;
-  completed: boolean;
-  categoryColor: string;
-}
-
-interface Activity {
-  id: string;
-  title: string;
-  color: string;
-  startTime?: string;
-  endTime?: string;
-  location?: string;
-  description?: string;
-}
-
-interface DayData {
-  day: string;
-  date: string;
-  fullDate: Date;
-  activities: Activity[];
-  isToday?: boolean;
-  isSelected?: boolean;
-}
 SplashScreen.preventAutoHideAsync();
 
 export default function HomeScreen() {
@@ -170,47 +142,6 @@ export default function HomeScreen() {
     },
   ];
 
-  // Données des tâches synchronisées avec le module Tasks
-  const tasks: Task[] = [
-    // Aucune tâche par défaut - sera rempli dynamiquement
-  ];
-
-  // Données du planning synchronisées avec le module Planning
-  const getMondayOfWeek = (date: Date): Date => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
-  };
-
-  const getWeekData = (startDate: Date): DayData[] => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    const months = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-    
-    const activitiesData: { [key: string]: Activity[] } = {};
-    
-    return days.map((day, index) => {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + index);
-      
-      const isToday = currentDate.getTime() === today.getTime();
-      
-      return {
-        day,
-        date: `${currentDate.getDate()} ${months[currentDate.getMonth()]}`,
-        fullDate: new Date(currentDate),
-        activities: activitiesData[index.toString()] || [],
-        isToday,
-      };
-    });
-  };
-
-  const currentWeekStart = getMondayOfWeek(new Date());
-  const weekData = getWeekData(currentWeekStart);
-
   // Calculer les dépenses par catégorie à partir des transactions
   const calculateCategorySpending = () => {
     const categorySpending: { [key: string]: number } = {};
@@ -247,23 +178,12 @@ export default function HomeScreen() {
   const totalSpent = updatedBudgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
   const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0;
 
-  // Calculs des tâches synchronisés
-  const tasksPending = tasks.filter(task => !task.completed).length;
-  const tasksCompleted = tasks.filter(task => task.completed).length;
-  const totalTasks = tasks.length;
-  const tasksProgress = totalTasks > 0 ? Math.round((tasksCompleted / totalTasks) * 100) : 0;
-
-  // Calculs du planning synchronisés
-  const today = new Date();
-  const todayEvents = weekData.find(day => day.isToday)?.activities.length || 0;
-  const weekEvents = weekData.reduce((total, day) => total + day.activities.length, 0);
-
   const dashboardData = {
-    tasksPending: tasksPending,
-    tasksCompleted: tasksCompleted,
-    tasksProgress: tasksProgress,
-    todayEvents: todayEvents,
-    weekEvents: weekEvents,
+    tasksPending: 2,
+    tasksCompleted: 5,
+    tasksProgress: 71,
+    todayEvents: 2,
+    weekEvents: 8,
     monthlyIncome: totalIncome,
     monthlyExpenses: totalExpenses,
     budgetPercentage: budgetPercentage,
