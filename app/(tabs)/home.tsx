@@ -240,24 +240,25 @@ export default function HomeScreen() {
   return (
     <>
       <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-                Tableau de bord
-              </Text>
-              <Text style={styles.syncText}>Synchronisé en temps réel</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.userButton}
-              onPress={() => setIsUserMenuVisible(true)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.userAvatar}>{userData.initial}</Text>
-            </TouchableOpacity>
+        {/* Header - Fixed */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={[styles.greeting, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+              Tableau de bord
+            </Text>
+            <Text style={styles.syncText}>Synchronisé en temps réel</Text>
           </View>
+          <TouchableOpacity 
+            style={styles.userButton}
+            onPress={() => setIsUserMenuVisible(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.userAvatar}>{userData.initial}</Text>
+          </TouchableOpacity>
+        </View>
 
+        {/* Scrollable Content */}
+        <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
           {/* Tasks Section */}
           <TouchableOpacity 
             style={[
@@ -537,6 +538,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 24,
+  },
+  scrollableContent: {
+    flex: 1,
   },
   headerLeft: {
     flex: 1,
