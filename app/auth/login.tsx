@@ -86,11 +86,9 @@ export default function LoginScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Image 
-              source={require('../../assets/images/SKOOLIFE - Logo.png')} 
-              style={styles.logo}
-              resizeMode="contain"
-            />
+            <View style={styles.logoContainer}>
+              <Text style={styles.logoText}>SKOOLIFE</Text>
+            </View>
             <Text style={styles.subtitle}>Connectez-vous à votre compte</Text>
           </View>
 
@@ -202,10 +200,18 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 40,
   },
-  logo: {
-    width: 280,
-    height: 120,
+  logoContainer: {
+    backgroundColor: '#FFD840',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
     marginBottom: 8,
+  },
+  logoText: {
+    fontSize: 32,
+    fontFamily: 'Poppins-Bold',
+    color: '#2E2E2E',
+    letterSpacing: 2,
   },
   subtitle: {
     fontSize: 16,

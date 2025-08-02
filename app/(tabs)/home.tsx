@@ -16,7 +16,7 @@ import {
   LogOut, 
   X, 
   Bell, 
-  CircleHelp as HelpCircle, 
+  HelpCircle, 
   Moon 
 } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
@@ -179,11 +179,11 @@ export default function HomeScreen() {
   const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0;
 
   const dashboardData = {
-    tasksPending: 2,
-    tasksCompleted: 5,
-    tasksProgress: 71,
-    todayEvents: 2,
-    weekEvents: 8,
+    tasksPending,
+    tasksCompleted,
+    tasksProgress,
+    todayEvents,
+    weekEvents,
     monthlyIncome: totalIncome,
     monthlyExpenses: totalExpenses,
     budgetPercentage: budgetPercentage,

@@ -22,7 +22,7 @@ import {
   Save, 
   Type, 
   User,
-  CreditCard as Edit3, 
+  Edit3, 
   Trash2 
 } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';

@@ -19,10 +19,10 @@ import {
   Type, 
   Calendar, 
   Tag, 
-  TriangleAlert as AlertTriangle, 
+  AlertTriangle, 
   Save, 
   Trash2, 
-  CreditCard as Edit3 
+  Edit3 
 } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
