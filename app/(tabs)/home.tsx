@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   syncText: {
     fontSize: 14,
-    color: '#10B981',
+    color: '#6B7280',
     fontFamily: 'Inter-Regular',
     fontWeight: '500',
   },
