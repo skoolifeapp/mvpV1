@@ -169,6 +169,13 @@ export default function HomeScreen() {
   const totalSpent = updatedBudgetCategories.reduce((sum, cat) => sum + cat.spent, 0);
   const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0;
 
+  // Variables pour les tâches et planning (à synchroniser avec les modules respectifs)
+  const tasksPending = 0;
+  const tasksCompleted = 0;
+  const tasksProgress = 0;
+  const todayEvents = 0;
+  const weekEvents = 0;
+
   const dashboardData = {
     tasksPending,
     tasksCompleted,
