@@ -12,18 +12,7 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
-import { 
-  Plus, 
-  Settings, 
-  X, 
-  Type, 
-  Calendar, 
-  Tag, 
-  AlertTriangle, 
-  Save, 
-  Trash2, 
-  Edit3 
-} from 'lucide-react-native';
+import { Plus, Settings, X, Type, Calendar, Tag, TriangleAlert as AlertTriangle, Save, Trash2, CreditCard as Edit3 } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import {
   Poppins_700Bold,

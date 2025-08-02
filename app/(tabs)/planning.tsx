@@ -11,20 +11,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar, 
-  X, 
-  Clock, 
-  MapPin, 
-  Plus, 
-  Save, 
-  Type, 
-  User,
-  Edit3, 
-  Trash2 
-} from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Calendar, X, Clock, MapPin, Plus, Save, Type, User, CreditCard as Edit3, Trash2 } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useFonts } from 'expo-font';
 import {

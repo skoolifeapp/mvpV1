@@ -9,16 +9,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import { 
-  ChevronRight, 
-  User, 
-  Settings, 
-  LogOut, 
-  X, 
-  Bell, 
-  HelpCircle, 
-  Moon 
-} from 'lucide-react-native';
+import { ChevronRight, User, Settings, LogOut, X, Bell, CircleHelp as HelpCircle, Moon } from 'lucide-react-native'-react-native';
 import { useFonts } from 'expo-font';
 import {
   Poppins_700Bold,
