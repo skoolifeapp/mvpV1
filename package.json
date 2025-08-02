@@ -5,7 +5,18 @@
   "private": true,
   "scripts": {
     "dev": "EXPO_NO_TELEMETRY=1 expo start",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
     "build:web": "EXPO_NO_TELEMETRY=1 expo export --platform web",
+    "build:ios": "eas build --platform ios",
+    "build:android": "eas build --platform android",
+    "build:all": "eas build --platform all",
+    "submit:ios": "eas submit --platform ios",
+    "submit:android": "eas submit --platform android",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean",
     "lint": "expo lint"
   },
   "dependencies": {
@@ -46,7 +57,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@expo/cli": "latest",
     "@types/react": "~19.0.10",
+    "eas-cli": "latest",
     "typescript": "~5.8.3"
   }
 }
