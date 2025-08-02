@@ -12,7 +12,7 @@ module.exports = {
       image: "./assets/images/splash.png",
       resizeMode: "contain",
       backgroundColor: "#FFD840"
-    },
+    }
     assetBundlePatterns: [
       "**/*"
     ],
