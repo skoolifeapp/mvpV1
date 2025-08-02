@@ -409,56 +409,56 @@ export default function PlanningScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-            Mon Planning
+      {/* Header - Fixed */}
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+          Mon Planning
+        </Text>
+      </View>
+
+      {/* Google Calendar Section - Fixed */}
+      <View style={[
+        styles.calendarSection,
+        { 
+          backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+          borderColor: isDarkMode ? '#4B5563' : 'transparent'
+        }
+      ]}>
+        <View style={styles.calendarInfo}>
+          <Calendar size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+          <Text style={[styles.calendarText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            Google Calendar
           </Text>
         </View>
+        <TouchableOpacity style={styles.connectButton} onPress={handleConnectCalendar}>
+          <Text style={styles.connectButtonText}>Connecter</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Google Calendar Section */}
-        <View style={[
-          styles.calendarSection,
-          { 
-            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-            borderColor: isDarkMode ? '#4B5563' : 'transparent'
-          }
-        ]}>
-          <View style={styles.calendarInfo}>
-            <Calendar size={20} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-            <Text style={[styles.calendarText, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              Google Calendar
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.connectButton} onPress={handleConnectCalendar}>
-            <Text style={styles.connectButtonText}>Connecter</Text>
-          </TouchableOpacity>
+      {/* Week Navigation - Fixed */}
+      <View style={[
+        styles.weekNavigation,
+        { 
+          backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
+          borderColor: isDarkMode ? '#4B5563' : 'transparent'
+        }
+      ]}>
+        <TouchableOpacity onPress={() => navigateWeek('prev')} activeOpacity={0.7}>
+          <ChevronLeft size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+        </TouchableOpacity>
+        <View style={styles.weekInfo}>
+          <Text style={[styles.weekTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
+            {currentWeek}
+          </Text>
+          <Text style={styles.todayIndicator}>Aujourd'hui</Text>
         </View>
+        <TouchableOpacity onPress={() => navigateWeek('next')} activeOpacity={0.7}>
+          <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
+        </TouchableOpacity>
+      </View>
 
-        {/* Week Navigation */}
-        <View style={[
-          styles.weekNavigation,
-          { 
-            backgroundColor: isDarkMode ? '#374151' : '#FFFFFF',
-            borderColor: isDarkMode ? '#4B5563' : 'transparent'
-          }
-        ]}>
-          <TouchableOpacity onPress={() => navigateWeek('prev')} activeOpacity={0.7}>
-            <ChevronLeft size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          </TouchableOpacity>
-          <View style={styles.weekInfo}>
-            <Text style={[styles.weekTitle, { color: isDarkMode ? '#F9FAFB' : '#2E2E2E' }]}>
-              {currentWeek}
-            </Text>
-            <Text style={styles.todayIndicator}>Aujourd'hui</Text>
-          </View>
-          <TouchableOpacity onPress={() => navigateWeek('next')} activeOpacity={0.7}>
-            <ChevronRight size={24} color={isDarkMode ? '#D1D5DB' : '#6B7280'} strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Days Grid */}
+      {/* Days Grid - Scrollable */}
+      <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
         <View style={styles.daysGrid}>
           {weekData.map(renderDay)}
         </View>
@@ -977,7 +977,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 12,
+    paddingBottom: 20,
     justifyContent: 'space-between',
+  },
+  scrollableContent: {
+    flex: 1,
   },
   dayCard: {
     width: (width - 32) / 2 - 4,
